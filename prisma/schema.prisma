@@ -14,7 +14,7 @@ model User {
   firstName String?
   lastName  String?
   password  String
-  roles     Roles[]  @default([customer])
+  roles     Roles[]  @default([guest])
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 }
@@ -32,5 +32,5 @@ model TokenWhiteList {
 
 enum Roles {
   admin
-  customer
+  guest
 }

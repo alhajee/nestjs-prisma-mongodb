@@ -36,7 +36,7 @@ class TestService {
         id: newAdmin.id,
       },
       data: {
-        roles: ['admin', 'customer'],
+        roles: ['admin', 'guest'],
       },
     });
 

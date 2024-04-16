@@ -1,7 +1,9 @@
 # General
+
 This is starter of a Nest.js 10 application with a MongoDB replica set + Prisma ODM.
 
 # Features
+
 - JWT Authentication
 - CASL Integration
 - Simple query builder
@@ -17,12 +19,14 @@ This is starter of a Nest.js 10 application with a MongoDB replica set + Prisma 
 - Health Check
 
 # Providers implemented
+
 - Prisma
 - Twilio
 - AWS S3
 - AWS SQS
 
 # Requirements
+
 - Nest.js 10
 - Docker
 - Docker Compose
@@ -33,7 +37,9 @@ This is starter of a Nest.js 10 application with a MongoDB replica set + Prisma 
 # Development
 
 ## MongoDB Replica Set
+
 1. Create volume for each MongoDB node
+
 ```bash
 docker volume create --name mongodb_repl_data1 -d local
 docker volume create --name mongodb_repl_data2 -d local
@@ -41,11 +47,13 @@ docker volume create --name mongodb_repl_data3 -d local
 ```
 
 2. Start the Docker containers using docker-compose
+
 ```bash
 docker-compose up -d
 ```
 
 3. Start an interactive MongoDb shell session on the primary node
+
 ```bash
 docker exec -it mongo0 mongosh --port 30000
 
@@ -55,6 +63,7 @@ rs.initiate(config);
 ```
 
 4 Update hosts file
+
 ```bash
 sudo nano  /etc/hosts
 
@@ -63,6 +72,7 @@ sudo nano  /etc/hosts
 ```
 
 5. Connect to MongoDB and check the status of the replica set
+
 ```
 mongosh "mongodb://localhost:30000,localhost:30001,localhost:30002/?replicaSet=rs0"
 ```
@@ -74,12 +84,13 @@ mongosh "mongodb://localhost:30000,localhost:30001,localhost:30002/?replicaSet=r
 ```bash
 npm run db:migrate:up
 ```
-> Need to apply migration `token-ttl-indexes` to database
-This migration create TTL indexes for `refreshToken` and `accessToken` fields in `TokenWhiteList` model.
-Token will automatically deleted from database when token expriration date will come.
 
+> Need to apply migration `token-ttl-indexes` to database
+> This migration create TTL indexes for `refreshToken` and `accessToken` fields in `TokenWhiteList` model.
+> Token will automatically deleted from database when token expriration date will come.
 
 ## Start
+
 1. Install dependencies
 
 ```
@@ -87,17 +98,16 @@ npm install
 ```
 
 2. Generate Prisma Types
-    
+
 ```
 npm run db:generate
 ```
 
-3. Push MongoDB Schema 
+3. Push MongoDB Schema
 
 ```
 npm run db:push
 ```
-
 
 4. Start the application
 
@@ -106,6 +116,7 @@ npm run start:dev
 ```
 
 ## Pagination
+
 Pagination is available for all endpoints that return an array of objects. The default page size is 10. You can change the default page size by setting the `DEFAULT_PAGE_SIZE` environment variable.
 We are using the [nestjs-prisma-pagination](https://www.npmjs.com/package/@nodeteam/nestjs-prisma-pagination) library for pagination.
 
@@ -126,6 +137,7 @@ Example of a paginated response:
 ```
 
 ## Query Builder
+
 The query builder is available for all endpoints that return an array of objects. You can use the query builder to filter, sort, and paginate the results.
 We are using the [nestjs-pipes](https://www.npmjs.com/package/@nodeteam/nestjs-pipes) library for the query builder.
 
@@ -151,26 +163,29 @@ GET /user/?where=firstName:John
 ```
 
 ## Swagger
+
 Swagger documentation is available at http://localhost:3000/docs
 
 ## JWT
 
 ### AuthGuard
+
 By default, `AuthGuard` will look for a JWT in the `Authorization` header with the scheme `Bearer`. You can customize this behavior by passing an options object to the `AuthGuard` decorator.
 All routes that are protected by the `AuthGuard` decorator will require a valid JWT token in the `Authorization` header of the incoming request.
-    
+
 ```typescript
 // app.module.ts
 
 providers: [
-    {
-        provide: APP_GUARD,
-        useClass: AuthGuard,
-    },
-]
+  {
+    provide: APP_GUARD,
+    useClass: AuthGuard,
+  },
+];
 ```
 
 ### SkipAuth
+
 You can skip authentication for a route by using the `SkipAuth` decorator.
 
 ```typescript
@@ -194,7 +209,7 @@ Define roles for app:
 
 export enum Roles {
   admin = 'admin',
-  customer = 'customer',
+  guest = 'guest',
 }
 ```
 
@@ -237,12 +252,12 @@ export const permissions: Permissions<Roles, Subjects, Actions> = {
     can(Actions.create, Post);
   },
 
-  customer({ user, can }) {
+  guest({ user, can }) {
     can(Actions.update, Post, { userId: user.id });
   },
 
   operator({ can, cannot, extend }) {
-    extend(Roles.customer);
+    extend(Roles.guest);
 
     can(Actions.manage, PostCategory);
     can(Actions.manage, Post);
@@ -266,6 +281,7 @@ export class PostModule {}
 ```
 
 ## CaslUser decorator
+
 CaslUser decorator provides access to lazy loaded user, obtained from request or user hook and cached on request object.
 
 ```typescript
@@ -424,13 +440,13 @@ interface CustomAuthorizableRequest {
 export class AppModule {}
 ```
 
-## Prisma 
+## Prisma
 
 ### Configuration
 
 ---
-title: Configuration
----
+
+## title: Configuration
 
 `PrismaModule` provides a `forRoot(...)` and `forRootAsync(..)` method. They accept an option object of `PrismaModuleOptions` for the [PrismaService](#prismaservice-options) and [PrismaClient](#prismaclient-options).
 
@@ -637,7 +653,7 @@ export function loggingMiddleware(): Prisma.Middleware {
     const after = Date.now();
 
     console.log(
-      `Query ${params.model}.${params.action} took ${after - before}ms`
+      `Query ${params.model}.${params.action} took ${after - before}ms`,
     );
 
     return result;
