@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import appConfig from '@config/app.config';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import swaggerConfig from '@config/swagger.config';
 import HealthModule from '@modules/health/health.module';
 import { PrismaModule } from '@providers/prisma/prisma.module';
@@ -17,6 +17,8 @@ import s3Config from '@config/s3.config';
 import sqsConfig from '@config/sqs.config';
 import { TokenService } from '@modules/auth/token.service';
 import { TokenRepository } from '@modules/auth/token.repository';
+import { RedisModule } from '@nestjs-modules/ioredis';
+import { REDIS_HOST, REDIS_PASS, REDIS_PORT } from '@constants/env.constants';
 
 @Module({
   controllers: [],
@@ -24,6 +26,17 @@ import { TokenRepository } from '@modules/auth/token.repository';
     ConfigModule.forRoot({
       isGlobal: true,
       load: [appConfig, swaggerConfig, jwtConfig, s3Config, sqsConfig],
+    }),
+    RedisModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        config: {
+          password: configService.getOrThrow<string>(REDIS_PASS),
+          host: configService.getOrThrow<string>(REDIS_HOST),
+          port: +configService.get<number>(REDIS_PORT),
+        },
+      }),
     }),
     PrismaModule.forRoot({
       isGlobal: true,
