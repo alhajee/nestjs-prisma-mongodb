@@ -38,12 +38,12 @@ services:
       restart: always
       command: "--bind_ip_all --replSet rs0 --port 30002"
   redis-starter:
-    image: 'docker.io/bitnami/redis:6.0-debian-10'
+    image: 'redis:6.2-alpine'
     container_name: redis-starter
     restart: always
     environment:
       - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
-    command: /bin/sh -c "redis-server --requirepass ${REDIS_PASSWORD}"
+    command: /bin/sh -c "redis-server --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81"
     ports:
       - '6379:6379'
     volumes:
