@@ -19,6 +19,7 @@ import { TokenService } from '@modules/auth/token.service';
 import { TokenRepository } from '@modules/auth/token.repository';
 import { RedisModule } from '@nestjs-modules/ioredis';
 import { REDIS_HOST, REDIS_PASS, REDIS_PORT } from '@constants/env.constants';
+import { RedisService } from '@modules/auth/redis.service';
 
 @Module({
   controllers: [],
@@ -58,6 +59,7 @@ import { REDIS_HOST, REDIS_PASS, REDIS_PORT } from '@constants/env.constants';
   providers: [
     TokenService,
     JwtService,
+    RedisService,
     TokenRepository,
     {
       provide: APP_GUARD,
