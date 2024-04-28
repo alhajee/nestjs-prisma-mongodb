@@ -32,6 +32,10 @@ import sqsConfig from '@config/sqs.config';
 import { createUsers, getSignUpData } from '@tests/common/user.mock.functions';
 import mockTokenService from '@tests/mocks/token.service.mock';
 import mockUserRepository from '@tests/mocks/user.repository.mock';
+import { MailService } from '@modules/mail/services/mail.service';
+import { RedisService } from '@modules/auth/redis.service';
+import mockRedisService from '@tests/mocks/redis.service.mock';
+import mockMailService from '@tests/mocks/mail.service.mock';
 describe('AuthService', () => {
   let module: TestingModule;
 
@@ -39,6 +43,8 @@ describe('AuthService', () => {
   let userRepository: UserRepository;
   let tokenService: TokenService;
   let tokenRepository: TokenRepository;
+  let redisService: RedisService;
+  let mailService: MailService;
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
@@ -53,6 +59,8 @@ describe('AuthService', () => {
       providers: [
         AuthService,
         { provide: TokenService, useValue: mockTokenService },
+        { provide: RedisService, useValue: mockRedisService },
+        { provide: MailService, useValue: mockMailService },
         { provide: UserRepository, useValue: mockUserRepository },
         TokenRepository,
         JwtService,
@@ -65,6 +73,8 @@ describe('AuthService', () => {
     userRepository = module.get<UserRepository>(UserRepository);
     tokenService = module.get<TokenService>(TokenService);
     tokenRepository = module.get<TokenRepository>(TokenRepository);
+    redisService = module.get<RedisService>(RedisService);
+    mailService = module.get<MailService>(MailService);
   });
 
   it('AuthService - should be defined', () => {
