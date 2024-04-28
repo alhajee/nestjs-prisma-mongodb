@@ -49,18 +49,7 @@ export class AuthController {
     @Request() req: any,
   ): Promise<Auth.AccessRefreshTokens> {
     const deviceIp = req.ip;
-
-    const testUser = await this.authService.getUserByEmail(signInDto.email);
-
-    // Check if device exists in Redis
-    const isNewDevice = await this.authService.isDeviceIPNew(
-      testUser.id,
-      deviceIp,
-    );
-
-    const requireOTP = isNewDevice;
-
-    return this.authService.signIn(signInDto, deviceIp, requireOTP);
+    return this.authService.signIn(signInDto, deviceIp);
   }
 
   @ApiBody({ type: VerifyOTPDto })
