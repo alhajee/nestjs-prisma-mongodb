@@ -1,5 +1,5 @@
 import { AuthService } from '@modules/auth/auth.service';
-import { AuthController } from '@modules/auth/auth.controller';
+import { AuthController } from '@modules/auth/controllers/auth.controller';
 import { UserRepository } from '@modules/user/user.repository';
 import { TokenService } from '@modules/auth/token.service';
 import { JwtModule, JwtService } from '@nestjs/jwt';
@@ -146,7 +146,9 @@ describe('AuthService', () => {
       });
 
       it('should return tokens', async () => {
-        expect(await authService.signIn(signInDto)).toStrictEqual(tokensMock);
+        expect(await authService.signIn(signInDto, '127.0.0.1')).toStrictEqual(
+          tokensMock,
+        );
       });
     });
 
@@ -163,9 +165,9 @@ describe('AuthService', () => {
       });
 
       it('should throw not found exception', async () => {
-        await expect(authService.signIn(signInDto)).rejects.toThrowError(
-          new NotFoundException(NOT_FOUND),
-        );
+        await expect(
+          authService.signIn(signInDto, '127.0.0.1'),
+        ).rejects.toThrowError(new NotFoundException(NOT_FOUND));
       });
     });
 
@@ -185,9 +187,9 @@ describe('AuthService', () => {
           password: 'invalid_credentials',
         };
 
-        await expect(authService.signIn(invalidSignIn)).rejects.toThrowError(
-          new UnauthorizedException(INVALID_CREDENTIALS),
-        );
+        await expect(
+          authService.signIn(invalidSignIn, '127.0.0.1'),
+        ).rejects.toThrowError(new UnauthorizedException(INVALID_CREDENTIALS));
       });
     });
   });
