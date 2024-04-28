@@ -42,10 +42,13 @@ class TestService {
 
     const { id, phone, email, password } = newAdmin;
 
-    const { accessToken, refreshToken } = await this._authService.signIn({
-      email,
-      password: userPassword,
-    });
+    const { accessToken, refreshToken } = await this._authService.signIn(
+      {
+        email,
+        password: userPassword,
+      },
+      '172.0.0.1',
+    );
 
     return {
       id,

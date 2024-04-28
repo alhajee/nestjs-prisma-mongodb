@@ -44,4 +44,8 @@ export class RedisService {
   async del(key: string): Promise<number> {
     return this.redis.del(key);
   }
+
+  async exists(key: string): Promise<number> {
+    return this.redis.exists(key);
+  }
 }

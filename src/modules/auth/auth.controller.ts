@@ -1,4 +1,12 @@
-import { Controller, Post, Body, UseGuards, HttpCode } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  HttpCode,
+  Request,
+  BadRequestException,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignUpDto } from './dto/sign-up.dto';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
@@ -17,6 +25,7 @@ import {
   UserProxy,
 } from '@modules/casl';
 import { TokensEntity } from '@modules/auth/entities/tokens.entity';
+import { VerifyOTPDto } from './dto/verify-otp.dto';
 
 @ApiTags('Auth')
 @ApiBaseResponses()
@@ -35,8 +44,50 @@ export class AuthController {
   @ApiBody({ type: SignInDto })
   @SkipAuth()
   @Post('sign-in')
-  signIn(@Body() signInDto: SignInDto): Promise<Auth.AccessRefreshTokens> {
-    return this.authService.signIn(signInDto);
+  async signIn(
+    @Body() signInDto: SignInDto,
+    @Request() req: any,
+  ): Promise<Auth.AccessRefreshTokens> {
+    const deviceIp = req.ip;
+
+    const testUser = await this.authService.getUserByEmail(signInDto.email);
+
+    // Check if device exists in Redis
+    const isNewDevice = await this.authService.isDeviceIPNew(
+      testUser.id,
+      deviceIp,
+    );
+
+    const requireOTP = isNewDevice;
+
+    return this.authService.signIn(signInDto, deviceIp, requireOTP);
+  }
+
+  @ApiBody({ type: VerifyOTPDto })
+  @SkipAuth()
+  @Post('verify-otp')
+  async verifyOTP(@Body() verifyOTPDto: VerifyOTPDto, @Request() req: any) {
+    const deviceIp = req.ip;
+    const { email, otp } = verifyOTPDto;
+
+    const user = await this.authService.getUserByEmail(email);
+
+    if (!user) {
+      throw new BadRequestException('Invalid OTP');
+    }
+
+    // Verify OTP
+    const isOTPValid = await this.authService.verifyOTP(user.id, otp);
+
+    if (!isOTPValid) {
+      throw new BadRequestException('Invalid OTP');
+    }
+
+    // Clear OTP after successful verification
+    await this.authService.clearOTP(user.id);
+
+    // Proceed with regular authentication
+    return this.authService.sign(user, deviceIp);
   }
 
   @ApiBody({ type: RefreshTokenDto })

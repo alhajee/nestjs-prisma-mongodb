@@ -20,14 +20,14 @@ model User {
 }
 
 model TokenWhiteList {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId       String
-  accessToken  String?
-  refreshToken String?
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId         String
+  accessToken    String?
+  refreshToken   String?
   refreshTokenId String?
-  expiredAt    DateTime
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @default(now())
+  expiredAt      DateTime
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @default(now())
 }
 
 enum Roles {
