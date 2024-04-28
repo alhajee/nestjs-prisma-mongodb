@@ -21,7 +21,7 @@ import { MailController } from './controllers/mail.controller';
         transport: {
           host: configService.getOrThrow(MAIL_HOST),
           port: configService.getOrThrow(MAIL_PORT),
-          secure: false,
+          secure: true,
           auth: {
             user: configService.getOrThrow(MAIL_USER),
             pass: configService.getOrThrow(MAIL_PASSWORD),
