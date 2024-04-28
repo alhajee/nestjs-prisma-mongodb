@@ -11,7 +11,7 @@ import jwtConfig from '@config/jwt.config';
 import { CaslModule } from '@modules/casl';
 import { Roles } from '@modules/app/app.roles';
 import { APP_GUARD } from '@nestjs/core';
-import { AuthGuard } from '@modules/auth/auth.guard';
+import { AuthGuard } from '@modules/auth/guard/auth.guard';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import s3Config from '@config/s3.config';
 import sqsConfig from '@config/sqs.config';
