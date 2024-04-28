@@ -17,6 +17,7 @@ import { User } from '@prisma/client';
 import { SignInDto } from '@modules/auth/dto/sign-in.dto';
 import { TokenService } from '@modules/auth/token.service';
 import { RedisService } from './redis.service';
+import { MailService } from '@modules/mail/services/mail.service';
 
 @Injectable()
 export class AuthService {
@@ -24,6 +25,7 @@ export class AuthService {
     private readonly userRepository: UserRepository,
     private readonly tokenService: TokenService,
     private readonly redisService: RedisService,
+    private readonly mailService: MailService,
   ) {}
 
   /**
@@ -55,7 +57,6 @@ export class AuthService {
   async signIn(
     signInDto: SignInDto,
     deviceIp: string,
-    requireOTP = false,
   ): Promise<Auth.AccessRefreshTokens> {
     const testUser = await this.getUserByEmail(signInDto.email);
 
@@ -74,13 +75,18 @@ export class AuthService {
       throw new UnauthorizedException(INVALID_CREDENTIALS);
     }
 
-    if (requireOTP) {
+    // Check if device exists in Redis
+    const isNewDevice = await this.isDeviceIPNew(testUser.id, deviceIp);
+
+    if (isNewDevice) {
       // Generate OTP
       const otp = this.generateOTP(6);
 
       // Save OTP in Redis
       await this.saveOTP(testUser.id, otp);
 
+      // Send OTP via email
+      await this.mailService.sendOTPConirmation(testUser.email, { otp });
       Logger.debug(otp, 'OTP');
 
       throw new BadRequestException('PLEASE_VERIFY_OTP');

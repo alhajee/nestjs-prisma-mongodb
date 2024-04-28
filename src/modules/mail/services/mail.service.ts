@@ -16,38 +16,14 @@ export class MailService {
     this.contactEmail = this.configService.get(CONTACT_EMAIL);
   }
 
-  async sendPasswordResetToken(to: string, context?: any) {
+  async sendOTPConirmation(to: string, context?: any) {
     try {
       await this.mailerService.sendMail({
         to,
-        subject: 'Password Reset Request',
-        template: './password-reset',
+        subject: 'OTP Confirmation',
+        template: './otp-confirmation',
         context: {
           ...context,
-          year: new Date().getFullYear(),
-          website: this.siteUrl,
-        },
-      });
-    } catch (error) {
-      Logger.error('Error sending email', error.message);
-    }
-  }
-
-  async submitContactUsEmail(
-    name: string,
-    email: string,
-    subject: string,
-    body: string,
-  ) {
-    try {
-      await this.mailerService.sendMail({
-        to: this.contactEmail,
-        subject,
-        template: './contact-us',
-        replyTo: email,
-        context: {
-          name,
-          body,
           year: new Date().getFullYear(),
           website: this.siteUrl,
         },
