@@ -40,7 +40,7 @@
     "@aws-sdk/client-sqs": "^3.556.0",
     "@casl/ability": "6.5.0",
     "@nestjs-modules/ioredis": "^1.0.1",
-    "@nestjs-modules/mailer": "^2.0.0",
+    "@nestjs-modules/mailer": "^1.9.1",
     "@nestjs-plus/discovery": "2.0.2",
     "@nestjs/common": "10.0.2",
     "@nestjs/config": "3.0.0",
