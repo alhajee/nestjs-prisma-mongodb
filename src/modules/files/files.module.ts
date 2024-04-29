@@ -5,8 +5,8 @@ import { UploadController } from './controllers/upload.controller';
 import { UploadService } from './services/upload.service';
 import { seconds, ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { THROTTLE_LIMIT, THROTTLE_TTL } from '@constants/env.constants';
 import { APP_GUARD } from '@nestjs/core';
+import { UPLOAD_RATE_LIMIT, UPLOAD_RATE_TTL } from '@constants/env.constants';
 
 @Module({
   imports: [
@@ -18,8 +18,8 @@ import { APP_GUARD } from '@nestjs/core';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => [
         {
-          ttl: seconds(configService.get(THROTTLE_TTL) || 60), // default is 60 seconds
-          limit: configService.get(THROTTLE_LIMIT) || 3, // default is 3 requests
+          ttl: seconds(configService.get(UPLOAD_RATE_TTL) || 60), // default is 60 seconds
+          limit: configService.get(UPLOAD_RATE_LIMIT) || 3, // default is 3 requests
         },
       ],
     }),
