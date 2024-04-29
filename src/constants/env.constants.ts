@@ -15,3 +15,6 @@ export const AWS_S3_REGION = 'AWS_S3_REGION';
 export const AWS_S3_BUCKET = 'AWS_S3_BUCKET';
 export const AWS_ACCESS_KEY_ID = 'AWS_ACCESS_KEY_ID';
 export const AWS_SECRET_ACCESS_KEY = 'AWS_SECRET_ACCESS_KEY';
+
+export const THROTTLE_TTL = 'THROTTLE_TTL';
+export const THROTTLE_LIMIT = 'THROTTLE_LIMIT';
