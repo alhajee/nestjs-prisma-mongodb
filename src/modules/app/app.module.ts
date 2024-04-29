@@ -21,6 +21,7 @@ import { RedisModule } from '@nestjs-modules/ioredis';
 import { REDIS_HOST, REDIS_PASS, REDIS_PORT } from '@constants/env.constants';
 import { RedisService } from '@modules/auth/redis.service';
 import { MailModule } from '@modules/mail/mail.module';
+import { FilesModule } from '@modules/files/files.module';
 
 @Module({
   controllers: [],
@@ -57,6 +58,7 @@ import { MailModule } from '@modules/mail/mail.module';
     UserModule,
     AuthModule,
     MailModule,
+    FilesModule,
   ],
   providers: [
     TokenService,
