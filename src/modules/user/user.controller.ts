@@ -26,7 +26,7 @@ import { PaginatorTypes } from '@nodeteam/nestjs-prisma-pagination';
 import UserBaseEntity from '@modules/user/entities/user-base.entity';
 import { UserHook } from '@modules/user/user.hook';
 import ApiOkBaseResponse from '@decorators/api-ok-base-response.decorator';
-import { PaginationDTO } from 'src/dto/pagination.dto';
+import { PaginationDTO } from '@dto/pagination.dto';
 
 @ApiTags('Users')
 @ApiBearerAuth()
