@@ -15,13 +15,13 @@ import {
   Version,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { PaginationDTO } from '../../../dto/pagination.dto';
 import { DocumentService } from '../services/document.service';
 import { UploadService } from '../services/upload.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { User } from '@prisma/client';
 import { CaslUser, UserProxy } from '@modules/casl';
+import { PaginationDTO } from '../dto/pagination.dto';
 
 @ApiTags('Documents')
 @Controller('documents')

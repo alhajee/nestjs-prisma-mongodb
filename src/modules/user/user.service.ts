@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { UserRepository } from '@modules/user/user.repository';
 import { Prisma, User } from '@prisma/client';
 import { PaginatorTypes } from '@nodeteam/nestjs-prisma-pagination';
-import { PaginationDTO } from 'src/dto/pagination.dto';
+import { PaginationDTO } from './dto/pagination.dto';
 
 @Injectable()
 export class UserService {
