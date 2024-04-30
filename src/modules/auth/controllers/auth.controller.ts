@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { AuthService } from '../auth.service';
 import { SignUpDto } from '../dto/sign-up.dto';
-import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import ApiBaseResponses from '@decorators/api-base-response.decorator';
 import { User } from '@prisma/client';
 import Serialize from '@decorators/serialize.decorator';
@@ -35,6 +35,7 @@ export class AuthController {
 
   @ApiBody({ type: SignUpDto })
   @Serialize(UserBaseEntity)
+  @ApiOperation({ summary: 'Register user account' })
   @SkipAuth()
   @Post('sign-up')
   create(@Body() signUpDto: SignUpDto): Promise<User> {
@@ -43,6 +44,7 @@ export class AuthController {
 
   @ApiBody({ type: SignInDto })
   @SkipAuth()
+  @ApiOperation({ summary: 'Sign-in to user account' })
   @Post('sign-in')
   async signIn(
     @Body() signInDto: SignInDto,
@@ -54,6 +56,7 @@ export class AuthController {
 
   @ApiBody({ type: VerifyOTPDto })
   @SkipAuth()
+  @ApiOperation({ summary: 'Verify sign-in OTP' })
   @Post('verify-otp')
   async verifyOTP(@Body() verifyOTPDto: VerifyOTPDto, @Request() req: any) {
     const deviceIp = req.ip;
@@ -81,6 +84,7 @@ export class AuthController {
 
   @ApiBody({ type: RefreshTokenDto })
   @SkipAuth()
+  @ApiOperation({ summary: 'Refresh authentication token' })
   @Post('token/refresh')
   refreshToken(
     @Body() refreshTokenDto: RefreshTokenDto,
@@ -90,6 +94,7 @@ export class AuthController {
 
   @Post('logout')
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'Sign-out user session' })
   @UseGuards(AccessGuard)
   @HttpCode(204)
   @UseAbility(Actions.delete, TokensEntity)
