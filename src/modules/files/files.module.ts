@@ -1,18 +1,14 @@
 import { Module } from '@nestjs/common';
-import { MulterModule } from '@nestjs/platform-express';
-import { MulterConfigService } from './services/multer.service';
-import { UploadController } from './controllers/upload.controller';
 import { UploadService } from './services/upload.service';
 import { seconds, ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { UPLOAD_RATE_LIMIT, UPLOAD_RATE_TTL } from '@constants/env.constants';
+import { DocumentController } from './controllers/document.controller';
+import { DocumentService } from './services/document.service';
 
 @Module({
   imports: [
-    MulterModule.registerAsync({
-      useClass: MulterConfigService,
-    }),
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -24,8 +20,9 @@ import { UPLOAD_RATE_LIMIT, UPLOAD_RATE_TTL } from '@constants/env.constants';
       ],
     }),
   ],
-  controllers: [UploadController],
+  controllers: [DocumentController],
   providers: [
+    DocumentService,
     UploadService,
     {
       provide: APP_GUARD,
