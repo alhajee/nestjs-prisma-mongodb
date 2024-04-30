@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { UserRepository } from '@modules/user/user.repository';
 import { Prisma, User } from '@prisma/client';
 import { PaginatorTypes } from '@nodeteam/nestjs-prisma-pagination';
+import { PaginationDTO } from 'src/dto/pagination.dto';
 
 @Injectable()
 export class UserService {
@@ -28,6 +29,7 @@ export class UserService {
    * @param orderBy
    */
   findAll(
+    paginationDTO: PaginationDTO,
     where: Prisma.UserWhereInput,
     orderBy: Prisma.UserOrderByWithRelationInput,
   ): Promise<PaginatorTypes.PaginatedResult<User>> {

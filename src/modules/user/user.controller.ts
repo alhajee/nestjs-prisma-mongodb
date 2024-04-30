@@ -1,10 +1,11 @@
 import { Controller, Get, Patch, Query, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import {
-  ApiBearerAuth, ApiExtraModels,
+  ApiBearerAuth,
+  ApiExtraModels,
   ApiQuery,
-  ApiTags
-} from "@nestjs/swagger";
+  ApiTags,
+} from '@nestjs/swagger';
 import ApiBaseResponses from '@decorators/api-base-response.decorator';
 import {
   AccessGuard,
@@ -25,6 +26,7 @@ import { PaginatorTypes } from '@nodeteam/nestjs-prisma-pagination';
 import UserBaseEntity from '@modules/user/entities/user-base.entity';
 import { UserHook } from '@modules/user/user.hook';
 import ApiOkBaseResponse from '@decorators/api-ok-base-response.decorator';
+import { PaginationDTO } from 'src/dto/pagination.dto';
 
 @ApiTags('Users')
 @ApiBearerAuth()
@@ -42,11 +44,12 @@ export class UserController {
   @Serialize(UserBaseEntity)
   @UseAbility(Actions.read, UserEntity)
   async findAll(
+    @Query() paginationDTO: PaginationDTO,
     @Query('where', WherePipe) where?: Prisma.UserWhereInput,
     @Query('orderBy', OrderByPipe)
     orderBy?: Prisma.UserOrderByWithRelationInput,
   ): Promise<PaginatorTypes.PaginatedResult<User>> {
-    return this.userService.findAll(where, orderBy);
+    return this.userService.findAll(paginationDTO, where, orderBy);
   }
 
   @Get('me')
