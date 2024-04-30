@@ -6,6 +6,7 @@ import {
   HttpCode,
   Request,
   BadRequestException,
+  Ip,
 } from '@nestjs/common';
 import { AuthService } from '../auth.service';
 import { SignUpDto } from '../dto/sign-up.dto';
@@ -49,8 +50,8 @@ export class AuthController {
   async signIn(
     @Body() signInDto: SignInDto,
     @Request() req: any,
+    @Ip() deviceIp: string,
   ): Promise<Auth.AccessRefreshTokens> {
-    const deviceIp = req.ip;
     return this.authService.signIn(signInDto, deviceIp);
   }
 
