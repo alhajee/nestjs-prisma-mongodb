@@ -18,3 +18,5 @@ export const AWS_SECRET_ACCESS_KEY = 'AWS_SECRET_ACCESS_KEY';
 
 export const UPLOAD_RATE_TTL = 'THROTTLE_TTL';
 export const UPLOAD_RATE_LIMIT = 'THROTTLE_LIMIT';
+
+export const CLIENT_URL = 'CLIENT_URL';
