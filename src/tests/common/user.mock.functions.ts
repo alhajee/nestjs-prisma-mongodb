@@ -37,6 +37,8 @@ export function createUsers(length: number): User[] {
       roles: ['guest'],
       createdAt: faker.date.anytime(),
       updatedAt: faker.date.anytime(),
+      fileSharedIDs: [],
+      isVerified: true,
     };
     result.push(user);
   }

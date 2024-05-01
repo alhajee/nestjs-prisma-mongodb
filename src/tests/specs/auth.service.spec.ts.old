@@ -1,12 +1,12 @@
 import { AuthService } from '@modules/auth/auth.service';
-import { AuthController } from '@modules/auth/auth.controller';
+import { AuthController } from '@modules/auth/controllers/auth.controller';
 import { UserRepository } from '@modules/user/user.repository';
-import { TokenService } from '@modules/auth/token.service';
+import { AuthTokenService } from '@modules/auth/auth-token.service';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TokenRepository } from '@modules/auth/token.repository';
 import { PrismaService } from '@providers/prisma';
-import { Prisma, User } from '@prisma/client';
+import { User } from '@prisma/client';
 import { SignUpDto } from '@modules/auth/dto/sign-up.dto';
 import { faker } from '@faker-js/faker';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -15,7 +15,6 @@ import { permissions } from '@modules/auth/auth.permissions';
 import { SignInDto } from '@modules/auth/dto/sign-in.dto';
 import {
   ConflictException,
-  INestApplication,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -32,13 +31,25 @@ import sqsConfig from '@config/sqs.config';
 import { createUsers, getSignUpData } from '@tests/common/user.mock.functions';
 import mockTokenService from '@tests/mocks/token.service.mock';
 import mockUserRepository from '@tests/mocks/user.repository.mock';
+import { MailService } from '@modules/mail/services/mail.service';
+import { RedisService } from '@modules/auth/redis.service';
+import mockRedisService from '@tests/mocks/redis.service.mock';
+import mockMailService from '@tests/mocks/mail.service.mock';
+import { TokenService } from '@modules/auth/token.service';
+import mockAuthTokenService from '@tests/mocks/auth-token.service.mock';
+import { PasswordResetService } from '@modules/auth/password-reset.service';
+import mockPasswordResetService from '@tests/mocks/password-reset.service.mock';
 describe('AuthService', () => {
   let module: TestingModule;
 
   let authService: AuthService;
   let userRepository: UserRepository;
-  let tokenService: TokenService;
+  let authTokenService: AuthTokenService;
   let tokenRepository: TokenRepository;
+  let redisService: RedisService;
+  let mailService: MailService;
+  let tokenService: TokenService;
+  let passwordResetService: PasswordResetService;
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
@@ -53,7 +64,11 @@ describe('AuthService', () => {
       providers: [
         AuthService,
         { provide: TokenService, useValue: mockTokenService },
+        { provide: AuthTokenService, useValue: mockAuthTokenService },
+        { provide: RedisService, useValue: mockRedisService },
+        { provide: MailService, useValue: mockMailService },
         { provide: UserRepository, useValue: mockUserRepository },
+        { provide: PasswordResetService, useValue: mockPasswordResetService },
         TokenRepository,
         JwtService,
         ConfigService,
@@ -64,7 +79,11 @@ describe('AuthService', () => {
     authService = module.get<AuthService>(AuthService);
     userRepository = module.get<UserRepository>(UserRepository);
     tokenService = module.get<TokenService>(TokenService);
+    authTokenService = module.get<AuthTokenService>(AuthTokenService);
     tokenRepository = module.get<TokenRepository>(TokenRepository);
+    redisService = module.get<RedisService>(RedisService);
+    mailService = module.get<MailService>(MailService);
+    passwordResetService = module.get<PasswordResetService>(PasswordResetService);
   });
 
   it('AuthService - should be defined', () => {
@@ -76,7 +95,7 @@ describe('AuthService', () => {
   });
 
   it('TokenService - should be defined', () => {
-    expect(tokenService).toBeDefined();
+    expect(authTokenService).toBeDefined();
   });
 
   it('TokenRepository - should be defined', () => {
@@ -146,7 +165,9 @@ describe('AuthService', () => {
       });
 
       it('should return tokens', async () => {
-        expect(await authService.signIn(signInDto)).toStrictEqual(tokensMock);
+        expect(await authService.signIn(signInDto, '127.0.0.1')).toStrictEqual(
+          tokensMock,
+        );
       });
     });
 
@@ -163,9 +184,9 @@ describe('AuthService', () => {
       });
 
       it('should throw not found exception', async () => {
-        await expect(authService.signIn(signInDto)).rejects.toThrowError(
-          new NotFoundException(NOT_FOUND),
-        );
+        await expect(
+          authService.signIn(signInDto, '127.0.0.1'),
+        ).rejects.toThrowError(new NotFoundException(NOT_FOUND));
       });
     });
 
@@ -185,9 +206,9 @@ describe('AuthService', () => {
           password: 'invalid_credentials',
         };
 
-        await expect(authService.signIn(invalidSignIn)).rejects.toThrowError(
-          new UnauthorizedException(INVALID_CREDENTIALS),
-        );
+        await expect(
+          authService.signIn(invalidSignIn, '127.0.0.1'),
+        ).rejects.toThrowError(new UnauthorizedException(INVALID_CREDENTIALS));
       });
     });
   });

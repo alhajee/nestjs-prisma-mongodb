@@ -15,7 +15,6 @@ import { faker } from '@faker-js/faker';
 import { PrismaService } from '@providers/prisma';
 import { PaginatorTypes } from '@nodeteam/nestjs-prisma-pagination';
 import PaginatedResult = PaginatorTypes.PaginatedResult;
-import { INestApplication } from '@nestjs/common';
 import {
   createUsers,
   getPaginatedData,
@@ -125,7 +124,17 @@ describe('UserService', () => {
       });
 
       it('should returns all users', async () => {
-        expect(await userService.findAll({}, {})).toStrictEqual(paginatedData);
+        expect(
+          await userService.findAll(
+            {
+              page: 1,
+              limit: 10,
+              skip: 0,
+            },
+            {},
+            {},
+          ),
+        ).toStrictEqual(paginatedData);
       });
     });
   });

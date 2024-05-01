@@ -8,29 +8,84 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  email     String   @unique
-  phone     String?
-  firstName String?
-  lastName  String?
-  password  String
-  roles     Roles[]  @default([guest])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  email      String   @unique
+  phone      String?
+  firstName  String?
+  lastName   String?
+  password   String
+  roles      Roles[]  @default([guest])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now())
+  isVerified Boolean? @default(false)
+
+  filesUploaded File[] @relation("uploadedBy") // files you uploaded
+
+  fileSharedIDs String[] @db.ObjectId // files shared with you
+  filesShared   File[]   @relation(fields: [fileSharedIDs], references: [id])
+
+  tokens Token[]
 }
 
 model TokenWhiteList {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId       String
-  accessToken  String?
-  refreshToken String?
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId         String
+  accessToken    String?
+  refreshToken   String?
   refreshTokenId String?
-  expiredAt    DateTime
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @default(now())
+  expiredAt      DateTime
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @default(now())
 }
 
 enum Roles {
   admin
   guest
+}
+
+model File {
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  filename String?
+  path     String
+
+  uploader   User   @relation(fields: [uploaderId], references: [id], "uploadedBy")
+  uploaderId String @db.ObjectId
+
+  isApproved        Boolean  @default(false)
+  isPublic          Boolean  @default(false)
+  size              Int // File size in bytes
+  fileType          String? // Type of file (e.g., image, document)
+  uploadDate        DateTime @default(now()) // Date when the file was uploaded
+  description       String?
+  tags              String[] // Tags or keywords associated with the file
+  originalFilename  String // Original filename of the uploaded file
+  contentType       String // MIME type of the file
+  disapprovalReason String? // Reason for disapproval, if applicable
+
+  sharedWithIDs String[] @db.ObjectId
+  sharedWith    User[]   @relation(fields: [sharedWithIDs], references: [id])
+}
+
+model Token {
+  id        String       @id @default(auto()) @map("_id") @db.ObjectId
+  owner     User         @relation(fields: [userId], references: [id])
+  userId    String       @db.ObjectId
+  code      String
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  expiresAt DateTime     @db.Timestamp()
+  useCase   TokenUseCase
+  type      TokenType    @default(value: OTP)
+}
+
+enum TokenUseCase {
+  PWD_RESET // Reset Password
+  LOGIN // Login
+  D2FA // Disable 2FA
+  PHV // Phone Verification
+}
+
+enum TokenType {
+  HEX
+  OTP
 }

@@ -21,4 +21,6 @@ export default class UserEntity implements User {
   readonly updatedAt!: Date;
 
   readonly isVerified!: boolean;
+
+  readonly fileSharedIDs!: string[];
 }
