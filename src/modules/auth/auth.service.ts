@@ -13,19 +13,21 @@ import {
   NOT_FOUND,
   USER_CONFLICT,
 } from '@constants/errors.constants';
-import { User } from '@prisma/client';
+import { TokenUseCase, User } from '@prisma/client';
 import { SignInDto } from '@modules/auth/dto/sign-in.dto';
-import { TokenService } from '@modules/auth/token.service';
+import { AuthTokenService } from '@modules/auth/auth-token.service';
 import { RedisService } from './redis.service';
 import { MailService } from '@modules/mail/services/mail.service';
+import { TokenService } from './token.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userRepository: UserRepository,
-    private readonly tokenService: TokenService,
+    private readonly authTokenService: AuthTokenService,
     private readonly redisService: RedisService,
     private readonly mailService: MailService,
+    private readonly tokenService: TokenService,
   ) {}
 
   /**
@@ -66,7 +68,7 @@ export class AuthService {
     }
 
     if (
-      !(await this.tokenService.isPasswordCorrect(
+      !(await this.authTokenService.isPasswordCorrect(
         signInDto.password,
         testUser.password,
       ))
@@ -80,14 +82,16 @@ export class AuthService {
 
     if (isNewDevice) {
       // Generate OTP
-      const otp = this.generateOTP(6);
-
-      // Save OTP in Redis
-      await this.saveOTP(testUser.id, otp);
+      const otp = await this.tokenService.create(
+        testUser.id,
+        TokenUseCase.LOGIN,
+      );
 
       // Send OTP via email
-      await this.mailService.sendOTPConirmation(testUser.email, { otp });
-      Logger.debug(otp, 'OTP');
+      await this.mailService.sendOTPConirmation(testUser.email, {
+        otp: otp.code,
+      });
+      Logger.debug(otp.code, 'OTP');
 
       throw new BadRequestException('PLEASE_VERIFY_OTP');
     }
@@ -99,7 +103,7 @@ export class AuthService {
     // Save device to redis
     await this.saveDeviceIP(user.id, deviceIp);
 
-    return this.tokenService.sign({
+    return this.authTokenService.sign({
       id: user.id,
       email: user.email,
       roles: user.roles,
@@ -123,11 +127,11 @@ export class AuthService {
   refreshTokens(
     refreshToken: string,
   ): Promise<Auth.AccessRefreshTokens | void> {
-    return this.tokenService.refreshTokens(refreshToken);
+    return this.authTokenService.refreshTokens(refreshToken);
   }
 
   logout(userId: string, accessToken: string): Promise<void> {
-    return this.tokenService.logout(userId, accessToken);
+    return this.authTokenService.logout(userId, accessToken);
   }
 
   async saveDeviceIP(userId: string, ip: string) {
@@ -139,30 +143,5 @@ export class AuthService {
     // Check if device IP is new by querying Redis
     const result = await this.redisService.exists(`device:${userId}:${ip}`);
     return result === 0; // Returns 0 if key doesn't exist (new device)
-  }
-
-  generateOTP = (n: number): string => {
-    const digits = '0123456789';
-    let otp = '';
-    for (let i = 0; i < n; i++) {
-      otp += digits[Math.floor(Math.random() * digits.length)];
-    }
-    return otp;
-  };
-
-  async saveOTP(userId: string, otp: string) {
-    // Save OTP in Redis with expiration (e.g., 10 minutes)
-    await this.redisService.set(`otp:${userId}`, otp, 600);
-  }
-
-  async verifyOTP(userId: string, otp: string): Promise<boolean> {
-    // Verify OTP against the saved OTP in Redis
-    const savedOTP = await this.redisService.get(`otp:${userId}`);
-    return savedOTP === otp;
-  }
-
-  async clearOTP(userId: string) {
-    // Clear OTP from Redis after successful login
-    await this.redisService.del(`otp:${userId}`);
   }
 }

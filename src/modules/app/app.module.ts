@@ -15,7 +15,7 @@ import { AuthGuard } from '@modules/auth/guard/auth.guard';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import s3Config from '@config/s3.config';
 import sqsConfig from '@config/sqs.config';
-import { TokenService } from '@modules/auth/token.service';
+import { AuthTokenService } from '@modules/auth/auth-token.service';
 import { TokenRepository } from '@modules/auth/token.repository';
 import { RedisModule } from '@nestjs-modules/ioredis';
 import { REDIS_HOST, REDIS_PASS, REDIS_PORT } from '@constants/env.constants';
@@ -61,7 +61,7 @@ import { FilesModule } from '@modules/files/files.module';
     FilesModule,
   ],
   providers: [
-    TokenService,
+    AuthTokenService,
     JwtService,
     RedisService,
     TokenRepository,

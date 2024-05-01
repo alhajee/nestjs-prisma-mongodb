@@ -80,6 +80,7 @@ export class DocumentController {
     );
   }
 
+  @Version('1')
   @Get()
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get documents with pagination' })
@@ -88,6 +89,7 @@ export class DocumentController {
     return this.documentService.getDocuments(paginationDTO);
   }
 
+  @Version('1')
   @Get(':id')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get a document by ID' })
@@ -97,6 +99,7 @@ export class DocumentController {
     return this.documentService.getDocumentById(id);
   }
 
+  @Version('1')
   @Patch(':id/approve')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Approve a document' })
@@ -106,6 +109,7 @@ export class DocumentController {
     return this.documentService.approveDocument(id);
   }
 
+  @Version('1')
   @Patch(':id/rename')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Rename a document' })
@@ -115,6 +119,7 @@ export class DocumentController {
     return this.documentService.renameDocument(id, newName);
   }
 
+  @Version('1')
   @Delete(':id')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete a document' })

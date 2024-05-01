@@ -1,7 +1,7 @@
 import { AuthService } from '@modules/auth/auth.service';
 import { AuthController } from '@modules/auth/controllers/auth.controller';
 import { UserRepository } from '@modules/user/user.repository';
-import { TokenService } from '@modules/auth/token.service';
+import { AuthTokenService } from '@modules/auth/auth-token.service';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TokenRepository } from '@modules/auth/token.repository';
@@ -40,7 +40,7 @@ describe('AuthService', () => {
 
   let authService: AuthService;
   let userRepository: UserRepository;
-  let tokenService: TokenService;
+  let authTokenService: AuthTokenService;
   let tokenRepository: TokenRepository;
   let redisService: RedisService;
   let mailService: MailService;
@@ -57,7 +57,7 @@ describe('AuthService', () => {
       controllers: [AuthController],
       providers: [
         AuthService,
-        { provide: TokenService, useValue: mockTokenService },
+        { provide: AuthTokenService, useValue: mockTokenService },
         { provide: RedisService, useValue: mockRedisService },
         { provide: MailService, useValue: mockMailService },
         { provide: UserRepository, useValue: mockUserRepository },
@@ -70,7 +70,7 @@ describe('AuthService', () => {
 
     authService = module.get<AuthService>(AuthService);
     userRepository = module.get<UserRepository>(UserRepository);
-    tokenService = module.get<TokenService>(TokenService);
+    authTokenService = module.get<AuthTokenService>(AuthTokenService);
     tokenRepository = module.get<TokenRepository>(TokenRepository);
     redisService = module.get<RedisService>(RedisService);
     mailService = module.get<MailService>(MailService);
@@ -85,7 +85,7 @@ describe('AuthService', () => {
   });
 
   it('TokenService - should be defined', () => {
-    expect(tokenService).toBeDefined();
+    expect(authTokenService).toBeDefined();
   });
 
   it('TokenRepository - should be defined', () => {

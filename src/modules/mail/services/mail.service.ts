@@ -32,4 +32,38 @@ export class MailService {
       Logger.error('Error sending email', error.message);
     }
   }
+
+  async sendPasswordResetEmail(to: string, context?: any) {
+    try {
+      await this.mailerService.sendMail({
+        to,
+        subject: 'OTP Confirmation',
+        template: './request-reset-password',
+        context: {
+          ...context,
+          year: new Date().getFullYear(),
+          website: this.siteUrl,
+        },
+      });
+    } catch (error) {
+      Logger.error('Error sending email', error.message);
+    }
+  }
+
+  async sendPasswordResetSuccess(to: string, context?: any) {
+    try {
+      await this.mailerService.sendMail({
+        to,
+        subject: 'Password Reset Successful',
+        template: './reset-password',
+        context: {
+          ...context,
+          year: new Date().getFullYear(),
+          website: this.siteUrl,
+        },
+      });
+    } catch (error) {
+      Logger.error('Error sending email', error.message);
+    }
+  }
 }
