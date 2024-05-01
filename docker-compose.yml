@@ -102,6 +102,7 @@ services:
     environment:
       - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
     command: /bin/sh -c "redis-server --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81"
+
     ports:
       - '6379:6379'
     volumes:
@@ -109,11 +110,11 @@ services:
 
 volumes:
   mongodb_repl_data1:
-    external: true
+    external: false
   mongodb_repl_data2:
-    external: true
+    external: false
   mongodb_repl_data3:
-    external: true
+    external: false
   redis_data:
     driver: local
   es-data-es01:
