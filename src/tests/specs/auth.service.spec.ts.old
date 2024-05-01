@@ -35,6 +35,10 @@ import { MailService } from '@modules/mail/services/mail.service';
 import { RedisService } from '@modules/auth/redis.service';
 import mockRedisService from '@tests/mocks/redis.service.mock';
 import mockMailService from '@tests/mocks/mail.service.mock';
+import { TokenService } from '@modules/auth/token.service';
+import mockAuthTokenService from '@tests/mocks/auth-token.service.mock';
+import { PasswordResetService } from '@modules/auth/password-reset.service';
+import mockPasswordResetService from '@tests/mocks/password-reset.service.mock';
 describe('AuthService', () => {
   let module: TestingModule;
 
@@ -44,6 +48,8 @@ describe('AuthService', () => {
   let tokenRepository: TokenRepository;
   let redisService: RedisService;
   let mailService: MailService;
+  let tokenService: TokenService;
+  let passwordResetService: PasswordResetService;
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
@@ -57,10 +63,12 @@ describe('AuthService', () => {
       controllers: [AuthController],
       providers: [
         AuthService,
-        { provide: AuthTokenService, useValue: mockTokenService },
+        { provide: TokenService, useValue: mockTokenService },
+        { provide: AuthTokenService, useValue: mockAuthTokenService },
         { provide: RedisService, useValue: mockRedisService },
         { provide: MailService, useValue: mockMailService },
         { provide: UserRepository, useValue: mockUserRepository },
+        { provide: PasswordResetService, useValue: mockPasswordResetService },
         TokenRepository,
         JwtService,
         ConfigService,
@@ -70,10 +78,12 @@ describe('AuthService', () => {
 
     authService = module.get<AuthService>(AuthService);
     userRepository = module.get<UserRepository>(UserRepository);
+    tokenService = module.get<TokenService>(TokenService);
     authTokenService = module.get<AuthTokenService>(AuthTokenService);
     tokenRepository = module.get<TokenRepository>(TokenRepository);
     redisService = module.get<RedisService>(RedisService);
     mailService = module.get<MailService>(MailService);
+    passwordResetService = module.get<PasswordResetService>(PasswordResetService);
   });
 
   it('AuthService - should be defined', () => {
