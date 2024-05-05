@@ -107,6 +107,21 @@ services:
     volumes:
       - 'redis_data:/bitnami/redis-starter/data'
 
+  drs-api:
+    container_name: drs-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    volumes:
+      - /var/www/uploads:/var/www/uploads
+    depends_on:
+      - redis-starter
+    ports:
+      - 8000:3000
+    restart: always
+
 volumes:
   mongodb_repl_data1:
     external: true
