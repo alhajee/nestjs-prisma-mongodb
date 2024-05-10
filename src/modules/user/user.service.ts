@@ -20,6 +20,9 @@ export class UserService {
   findOne(id: string): Promise<User> {
     return this.userRepository.findOne({
       where: { id },
+      select: {
+        roles: true,
+      },
     });
   }
 
