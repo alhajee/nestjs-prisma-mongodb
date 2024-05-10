@@ -10,6 +10,7 @@ import { SignUpDto } from './dto/sign-up.dto';
 import { UserRepository } from '@modules/user/user.repository';
 import {
   INVALID_CREDENTIALS,
+  MFA_PHONE_OR_TOKEN_REQUIRED,
   NOT_FOUND,
   USER_CONFLICT,
 } from '@constants/errors.constants';
@@ -92,8 +93,8 @@ export class AuthService {
         otp: otp.code,
       });
       Logger.debug(otp.code, 'OTP');
-
-      throw new BadRequestException('PLEASE_VERIFY_OTP');
+      // 400004: Phone number or token is required
+      throw new BadRequestException(MFA_PHONE_OR_TOKEN_REQUIRED);
     }
 
     return this.sign(testUser, deviceIp);
