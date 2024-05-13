@@ -77,6 +77,8 @@ sudo nano  /etc/hosts
 mongosh "mongodb://localhost:30000,localhost:30001,localhost:30002/?replicaSet=rs0"
 ```
 
+#### You can skip step 1-4 by running the docker-compose.dev.yaml file
+
 ## Migration
 
 1. Run migrations
