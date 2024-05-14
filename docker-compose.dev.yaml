@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   es01:
-    image: 'elastic/elasticsearch:7.10.2'
+    image: elasticsearch:8.8.0
     ports:
       - 9200:9200
       - 9300:9300
@@ -11,14 +11,27 @@ services:
     deploy:
       resources:
         limits:
+          cpus: '1'
+          memory: 500M
+        reservations:
           cpus: '0.5'
           memory: 250M
-        reservations:
-          cpus: '0.1'
-          memory: 200M
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'curl',
+          '--silent',
+          '--fail',
+          'http://localhost:9200/_cluster/health',
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   es02:
-    image: 'elastic/elasticsearch:7.10.2'
+    image: elasticsearch:8.8.0
     ports:
       - 9201:9200
       - 9301:9300
@@ -27,14 +40,27 @@ services:
     deploy:
       resources:
         limits:
+          cpus: '1'
+          memory: 500M
+        reservations:
           cpus: '0.5'
           memory: 250M
-        reservations:
-          cpus: '0.1'
-          memory: 200M
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'curl',
+          '--silent',
+          '--fail',
+          'http://localhost:9200/_cluster/health',
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   es03:
-    image: 'elastic/elasticsearch:7.10.2'
+    image: elasticsearch:8.8.0
     ports:
       - 9202:9200
       - 9302:9300
@@ -43,18 +69,45 @@ services:
     deploy:
       resources:
         limits:
+          cpus: '1'
+          memory: 500M
+        reservations:
           cpus: '0.5'
           memory: 250M
-        reservations:
-          cpus: '0.1'
-          memory: 200M
+    healthcheck:
+      test:
+        [
+          'CMD',îêê
+          'curl',
+          '--silent',
+          '--fail',
+          'http://localhost:9200/_cluster/health',
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   kibana:
-    image: 'elastic/kibana:7.10.2'
+    image: docker.elastic.co/kibana/kibana:8.8.0
+    container_name: kibana
+    environment:
+      - XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY=d1a66dfd-c4d3-4a0a-8290-2abcb83ab3aa
+      - ELASTICSEARCH_HOSTS=["http://es01:9200","http://es02:9201","http://es03:9202"]
     ports:
       - 5601:5601
-    environment:
-      - ELASTICSEARCH_HOSTS=["http://es01:9200", "http://es02:9201", "http://es03:9202"]
+    depends_on:
+      - es01
+      - es02
+      - es03
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 500M
+        reservations:
+          cpus: '0.5'
+          memory: 200M
 
   mongo0:
     hostname: mongo0
@@ -135,16 +188,15 @@ services:
 
   drs-api:
     container_name: drs-api
-    image: registry.digitalocean.com/scidar/drs-api:latest
-    # build:
-    #   context: .
-    #   dockerfile: Dockerfile
+    build:
+      context: .
+      dockerfile: Dockerfile
     env_file:
       - .env
     volumes:
       - /var/www/uploads:/var/www/uploads
-    # depends_on:
-    #   - redis-starter
+    depends_on:
+      - redis-starter
     ports:
       - 8000:3000
     restart: always
