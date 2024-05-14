@@ -54,7 +54,7 @@ import { FilesModule } from '@modules/files/files.module';
     }),
     CaslModule.forRoot<Roles>({
       // Role to grant full access, optional
-      superuserRole: Roles.admin,
+      superuserRole: Roles.SYSTEM_ADMIN,
     }),
     HealthModule,
     UserModule,

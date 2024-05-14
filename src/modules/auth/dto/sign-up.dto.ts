@@ -4,8 +4,11 @@ import {
   IsNotEmpty,
   Length,
   Matches,
+  IsEnum,
+  ArrayUnique,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Roles } from '@modules/app/app.roles';
 
 export class SignUpDto {
   @ApiProperty({ type: String })
@@ -33,4 +36,13 @@ export class SignUpDto {
   @Matches(/[a-zA-Z]/, { message: 'password must contain at least one letter' })
   @Matches(/^\S+$/, { message: 'password must not contain spaces' })
   readonly password!: string;
+
+  @ApiProperty({
+    description: 'The roles of the user. Defaults to ["GUEST"].',
+    enum: Roles,
+    default: [Roles.GUEST],
+  })
+  @IsEnum(Roles, { each: true })
+  @ArrayUnique()
+  readonly roles!: Roles[];
 }
