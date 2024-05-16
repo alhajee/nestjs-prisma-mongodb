@@ -6,9 +6,10 @@ metadata:
     name: drs-api-ingress
   annotations:
     kubectl.kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   rules:
-    - host: k8s.drs.scidar.org
+    - host: api.drs.scidar.org
       http:
         paths:
           - pathType: Prefix
@@ -18,3 +19,7 @@ spec:
                 name: drs-api-service
                 port:
                   number: 80
+  tls:
+    - hosts:
+        - api.drs.scidar.org
+      secretName: letsencrypt-prod
