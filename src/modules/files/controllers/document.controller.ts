@@ -32,6 +32,14 @@ export class DocumentController {
   ) {}
 
   @Version('1')
+  @ApiOperation({ summary: 'Search within documents' })
+  @ApiResponse({ status: 200, description: 'Document uploaded successfully' })
+  @Get('/search')
+  public async search(@Query() query: any): Promise<any> {
+    return this.documentService.search(query.q);
+  }
+
+  @Version('1')
   @Post('upload')
   @ApiOperation({ summary: 'Upload a document' })
   @ApiResponse({ status: 201, description: 'Document uploaded successfully' })
