@@ -24,7 +24,6 @@ export class DocumentElasticIndex {
   private async deleteFileDocument(docId: string): Promise<any> {
     const data = {
       index: documentIndex._index,
-      type: documentIndex._type,
       id: docId,
     };
     return await this.searchService.deleteDocument(data);
@@ -33,7 +32,6 @@ export class DocumentElasticIndex {
   private bulkIndex(documentId: string): any {
     return {
       _index: documentIndex._index,
-      _type: documentIndex._type,
       _id: documentId,
     };
   }
@@ -47,7 +45,6 @@ export class DocumentElasticIndex {
     return {
       body: bulk,
       index: documentIndex._index,
-      type: documentIndex._type,
     };
   }
 }
