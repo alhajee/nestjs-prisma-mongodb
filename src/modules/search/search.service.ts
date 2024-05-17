@@ -15,6 +15,8 @@ export class SearchService
   extends ElasticsearchService
   implements SearchServiceInterface<any>
 {
+  logger = new Logger(SearchService.name);
+
   constructor(@Inject() private readonly configService: ConfigService) {
     super(SearchConfig.searchConfig(process.env.ELASTIC_SEARCH_URL));
   }
@@ -23,7 +25,7 @@ export class SearchService
     return await this.bulk(bulkData)
       .then((res) => res)
       .catch((err) => {
-        Logger.error(err, SearchService.name); // Log error
+        this.logger.error(err); // Log error
         throw new InternalServerErrorException(INTERNAL_SERVER_ERROR);
       });
   }
@@ -32,7 +34,7 @@ export class SearchService
     return await this.update(updateData)
       .then((res) => res)
       .catch((err) => {
-        Logger.error(err, SearchService.name); // Log error
+        this.logger.error(err); // Log error
         throw new InternalServerErrorException(INTERNAL_SERVER_ERROR);
       });
   }
@@ -40,10 +42,11 @@ export class SearchService
   public async searchIndex(searchData: any): Promise<any> {
     return await this.search(searchData)
       .then((res) => {
-        return (res as any).body.hits.hits;
+        this.logger.log(res);
+        return res.hits.hits;
       })
       .catch((err) => {
-        Logger.error(err, SearchService.name); // Log error
+        this.logger.error(err); // Log error
         throw new InternalServerErrorException(INTERNAL_SERVER_ERROR);
       });
   }
@@ -53,7 +56,7 @@ export class SearchService
       .delete(indexData)
       .then((res) => res)
       .catch((err) => {
-        Logger.error(err, SearchService.name); // Log error
+        this.logger.error(err); // Log error
         throw new InternalServerErrorException(INTERNAL_SERVER_ERROR);
       });
   }
@@ -62,7 +65,7 @@ export class SearchService
     return await this.delete(indexData)
       .then((res) => res)
       .catch((err) => {
-        Logger.error(err, SearchService.name); // Log error
+        this.logger.error(err); // Log error
         throw new InternalServerErrorException(INTERNAL_SERVER_ERROR);
       });
   }
