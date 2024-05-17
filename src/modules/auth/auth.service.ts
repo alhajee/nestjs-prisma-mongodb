@@ -23,6 +23,8 @@ import { TokenService } from './token.service';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger('AuthService');
+
   constructor(
     private readonly userRepository: UserRepository,
     private readonly authTokenService: AuthTokenService,
@@ -138,7 +140,7 @@ export class AuthService {
   async saveDeviceIP(userId: string, ip: string) {
     // Save device IP in Redis with expiration (e.g., 24 hours)
     await this.redisService.set(`device:${userId}:${ip}`, 86400);
-    Logger.log(ip, 'Users IP');
+    this.logger.log(ip, 'Users IP');
   }
 
   async isDeviceIPNew(userId: string, ip: string): Promise<boolean> {
