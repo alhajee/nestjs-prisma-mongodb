@@ -21,6 +21,24 @@ export class DocumentService {
   async getDocumentById(id: string): Promise<File> {
     const document = await this.prisma.file.findUnique({
       where: { id },
+      include: {
+        uploader: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            avatar: true,
+          },
+        },
+        sharedWith: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            avatar: true,
+          },
+        },
+      },
     });
     if (!document) {
       throw new NotFoundException('Document not found');
@@ -33,6 +51,24 @@ export class DocumentService {
     const documents = await this.prisma.file.findMany({
       take: limit,
       skip,
+      include: {
+        uploader: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            avatar: true,
+          },
+        },
+        sharedWith: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            avatar: true,
+          },
+        },
+      },
     });
     const totalDocuments = await this.prisma.file.count();
     return {
