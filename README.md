@@ -210,8 +210,11 @@ Define roles for app:
 // app.roles.ts
 
 export enum Roles {
-  admin = 'admin',
-  guest = 'guest',
+  SYSTEM_ADMIN = 'SYSTEM_ADMIN',
+  PROGRAM_OPERATION_STAFF = 'PROGRAM_OPERATION_STAFF',
+  NEW_STAFF = 'NEW_STAFF',
+  GUEST = 'GUEST',
+  MANAGEMENT_STAFF = 'MANAGEMENT_STAFF',
 }
 ```
 
@@ -254,12 +257,12 @@ export const permissions: Permissions<Roles, Subjects, Actions> = {
     can(Actions.create, Post);
   },
 
-  guest({ user, can }) {
+  GUEST({ user, can }) {
     can(Actions.update, Post, { userId: user.id });
   },
 
   operator({ can, cannot, extend }) {
-    extend(Roles.guest);
+    extend(Roles.GUEST);
 
     can(Actions.manage, PostCategory);
     can(Actions.manage, Post);
