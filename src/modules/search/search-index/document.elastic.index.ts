@@ -2,13 +2,16 @@ import { Inject, Injectable } from '@nestjs/common';
 import { SearchServiceInterface } from '../interface/search.service.interface';
 import { documentIndex } from '../constant/document.elastic';
 import { File } from '@prisma/client';
+// import { IndexService } from '../index.service';
 
 @Injectable()
 export class DocumentElasticIndex {
   constructor(
     @Inject('SearchServiceInterface')
-    private readonly searchService: SearchServiceInterface<any>,
-  ) {}
+    private readonly searchService: SearchServiceInterface<any>, // private readonly indexService: IndexService,
+  ) {
+    //this.indexService.createIndex(documentIndex._index); // Ensure index is created
+  }
 
   public async insertFileDocument(file: File): Promise<any> {
     const data = this.fileDocument(file);
