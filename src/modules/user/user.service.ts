@@ -34,6 +34,7 @@ export class UserService {
         lastName: true,
         avatar: true,
         isVerified: true,
+        isActive: true,
         roles: true,
       },
     });
@@ -61,18 +62,6 @@ export class UserService {
   async updateUser(id: string, data: Prisma.UserUpdateInput): Promise<User> {
     const user = await this.findById(id);
     return this.userRepository.updateUser(id, data);
-  }
-
-  /**
-   * Verify a user's email.
-   * @param userId The ID of the user to verify.
-   */
-  async verifyEmail(userId: string): Promise<User> {
-    const user = await this.findById(userId);
-    const updatedUser = await this.userRepository.updateUser(userId, {
-      isVerified: true,
-    });
-    return updatedUser;
   }
 
   /**
@@ -105,5 +94,35 @@ export class UserService {
   async setUserRole(userId: string, role: Roles): Promise<User> {
     const user = await this.findById(userId);
     return this.userRepository.updateUser(userId, { roles: [role] });
+  }
+
+  /**
+   * Activate a user by ID.
+   * @param userId The ID of the user to activate.
+   * @returns The updated user.
+   */
+  async activateUser(userId: string): Promise<User> {
+    const user = await this.userRepository.findById(userId);
+    return this.userRepository.updateUser(userId, { isActive: true });
+  }
+
+  /**
+   * Deactivate a user by ID.
+   * @param userId The ID of the user to deactivate.
+   * @returns The updated user.
+   */
+  async deactivateUser(userId: string): Promise<User> {
+    const user = await this.userRepository.findById(userId);
+    return this.userRepository.updateUser(userId, { isActive: false });
+  }
+
+  /**
+   * Verify a user by ID.
+   * @param userId The ID of the user to verify.
+   * @returns The updated user.
+   */
+  async verifyUser(userId: string): Promise<User> {
+    const user = await this.userRepository.findById(userId);
+    return this.userRepository.updateUser(userId, { isVerified: true });
   }
 }

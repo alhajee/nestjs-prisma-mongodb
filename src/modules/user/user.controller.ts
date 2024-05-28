@@ -105,6 +105,7 @@ export class UserController {
    * @returns The updated user.
    */
   @Put(':userId/roles')
+  @Serialize(UserBaseEntity)
   @ApiOperation({ summary: 'Update user roles' })
   async updateUserRoles(
     @Param('userId') userId: string,
@@ -121,6 +122,7 @@ export class UserController {
    * @returns The updated user.
    */
   @Put(':userId/role')
+  @Serialize(UserBaseEntity)
   @ApiOperation({ summary: 'Set user role' })
   async setUserRole(
     @Param('userId') userId: string,
@@ -136,8 +138,45 @@ export class UserController {
    * @returns A confirmation message.
    */
   @Delete(':userId')
+  @Serialize(UserBaseEntity)
   @ApiOperation({ summary: 'Delete user' })
   async deleteUser(@Param('userId') userId: string) {
     return this.userService.deleteUser(userId);
+  }
+
+  /**
+   * Activate a user account.
+   * @param userId The ID of the user to activate.
+   * @returns The updated user.
+   */
+  @Put(':userId/activate')
+  @Serialize(UserBaseEntity)
+  @ApiOperation({ summary: 'Activate user account' })
+  async activateUser(@Param('userId') userId: string) {
+    return this.userService.activateUser(userId);
+  }
+
+  /**
+   * Deactivate a user account.
+   * @param userId The ID of the user to deactivate.
+   * @returns The updated user.
+   */
+  @Put(':userId/deactivate')
+  @Serialize(UserBaseEntity)
+  @ApiOperation({ summary: 'Deactivate user account' })
+  async deactivateUser(@Param('userId') userId: string) {
+    return this.userService.deactivateUser(userId);
+  }
+
+  /**
+   * Verify a user account.
+   * @param userId The ID of the user to verify.
+   * @returns The updated user.
+   */
+  @Put(':userId/verify')
+  @Serialize(UserBaseEntity)
+  @ApiOperation({ summary: 'Verify user account' })
+  async verifyUser(@Param('userId') userId: string) {
+    return this.userService.verifyUser(userId);
   }
 }
