@@ -104,42 +104,45 @@ export class DocumentController {
   }
 
   @Version('1')
-  @Get(':id')
+  @Get(':documentId')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get a document by ID' })
   @ApiResponse({ status: 200, description: 'Document retrieved successfully' })
   @ApiResponse({ status: 404, description: 'Document not found' })
-  async getDocumentById(@Param('id') id: string) {
+  async getDocumentById(@Param('documentId') id: string) {
     return this.documentService.getDocumentById(id);
   }
 
   @Version('1')
-  @Patch(':id/approve')
+  @Patch(':documentId/approve')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Approve a document' })
   @ApiResponse({ status: 200, description: 'Document approved successfully' })
   @ApiResponse({ status: 404, description: 'Document not found' })
-  async approveDocument(@Param('id') id: string) {
+  async approveDocument(@Param('documentId') id: string) {
     return this.documentService.approveDocument(id);
   }
 
   @Version('1')
-  @Patch(':id/rename')
+  @Patch(':documentId/rename')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Rename a document' })
   @ApiResponse({ status: 200, description: 'Document renamed successfully' })
   @ApiResponse({ status: 404, description: 'Document not found' })
-  async renameDocument(@Param('id') id: string, @Body() newName: string) {
+  async renameDocument(
+    @Param('documentId') id: string,
+    @Body() newName: string,
+  ) {
     return this.documentService.renameDocument(id, newName);
   }
 
   @Version('1')
-  @Delete(':id')
+  @Delete(':documentId')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete a document' })
   @ApiResponse({ status: 200, description: 'Document deleted successfully' })
   @ApiResponse({ status: 404, description: 'Document not found' })
-  async deleteDocument(@Param('id') id: string) {
+  async deleteDocument(@Param('documentId') id: string) {
     return this.documentService.deleteDocument(id);
   }
 }
