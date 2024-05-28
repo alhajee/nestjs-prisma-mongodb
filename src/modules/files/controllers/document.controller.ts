@@ -93,7 +93,7 @@ export class DocumentController {
   @Version('1')
   @Get('mine')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get documents with pagination' })
+  @ApiOperation({ summary: 'Get your documents with pagination' })
   @ApiResponse({ status: 200, description: 'Documents retrieved successfully' })
   async getMyDocuments(
     @Query() paginationDTO: MyDocumentsPaginationDTO,
