@@ -15,7 +15,13 @@ import {
   Version,
   Put,
 } from '@nestjs/common';
-import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiExtraModels,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { DocumentService } from './document.service';
 import { UploadService } from './upload.service';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -26,8 +32,14 @@ import { DocumentSearchDTO } from './dto/document-search.dto';
 import { DocumentsPaginationDTO } from './dto/documents-pagination.dto';
 import { MyDocumentsPaginationDTO } from './dto/my-documents-pagination.dto';
 import { DisapproveDocumentDTO } from './dto/disapprove-document.dto';
+import ApiBaseResponses from '@decorators/api-base-response.decorator';
+import { FileBaseEntity } from './entities/file-base.entity';
+import Serialize from '@decorators/serialize.decorator';
 
 @ApiTags('Documents')
+@ApiBearerAuth()
+@ApiExtraModels(FileBaseEntity)
+@ApiBaseResponses()
 @Controller('documents')
 export class DocumentController {
   constructor(
@@ -39,7 +51,6 @@ export class DocumentController {
   @ApiQuery({ type: DocumentSearchDTO })
   @ApiOperation({ summary: 'Search within documents' })
   @ApiResponse({ status: 200, description: 'Search successful' })
-  @ApiBearerAuth()
   @Get('/search')
   public async search(@Query() query: any): Promise<any> {
     return this.documentService.search(query.q);
@@ -49,7 +60,6 @@ export class DocumentController {
   @Post('upload')
   @ApiOperation({ summary: 'Upload a document' })
   @ApiResponse({ status: 201, description: 'Document uploaded successfully' })
-  @ApiBearerAuth()
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -85,16 +95,15 @@ export class DocumentController {
 
   @Version('1')
   @Get()
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Get documents with pagination' })
   @ApiResponse({ status: 200, description: 'Documents retrieved successfully' })
+  // @Serialize(FileBaseEntity) TODO: Fix serializer
   async getDocuments(@Query() paginationDTO: DocumentsPaginationDTO) {
     return this.documentService.getDocuments(paginationDTO);
   }
 
   @Version('1')
   @Get('mine')
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Get your documents with pagination' })
   @ApiResponse({ status: 200, description: 'Documents retrieved successfully' })
   async getMyDocuments(
@@ -107,7 +116,6 @@ export class DocumentController {
 
   @Version('1')
   @Get(':documentId')
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Get a document by ID' })
   @ApiResponse({ status: 200, description: 'Document retrieved successfully' })
   @ApiResponse({ status: 404, description: 'Document not found' })
@@ -117,7 +125,6 @@ export class DocumentController {
 
   @Version('1')
   @Patch(':documentId/approve')
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Approve a document' })
   @ApiResponse({ status: 200, description: 'Document approved successfully' })
   @ApiResponse({ status: 404, description: 'Document not found' })
@@ -127,7 +134,6 @@ export class DocumentController {
 
   @Version('1')
   @Patch(':documentId/rename')
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Rename a document' })
   @ApiResponse({ status: 200, description: 'Document renamed successfully' })
   @ApiResponse({ status: 404, description: 'Document not found' })
@@ -140,7 +146,6 @@ export class DocumentController {
 
   @Version('1')
   @Delete(':documentId')
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete a document' })
   @ApiResponse({ status: 200, description: 'Document deleted successfully' })
   @ApiResponse({ status: 404, description: 'Document not found' })
@@ -155,7 +160,6 @@ export class DocumentController {
    * @returns The updated file.
    */
   @Put(':documentId/disapprove')
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Disapprove a document' })
   @ApiResponse({
     status: 200,
