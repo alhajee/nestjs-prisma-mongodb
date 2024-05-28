@@ -155,6 +155,7 @@ export class DocumentController {
    * @returns The updated file.
    */
   @Put(':documentId/disapprove')
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Disapprove a document' })
   @ApiResponse({
     status: 200,
