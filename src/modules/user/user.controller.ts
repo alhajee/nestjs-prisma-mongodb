@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -14,7 +15,6 @@ import {
   ApiExtraModels,
   ApiOperation,
   ApiQuery,
-  ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import ApiBaseResponses from '@decorators/api-base-response.decorator';
@@ -106,7 +106,6 @@ export class UserController {
    */
   @Put(':userId/roles')
   @ApiOperation({ summary: 'Update user roles' })
-  @ApiResponse({ status: 200, description: 'User roles updated successfully' })
   async updateUserRoles(
     @Param('userId') userId: string,
     @Body() updateUserRolesDTO: UpdateUserRolesDTO,
@@ -123,12 +122,22 @@ export class UserController {
    */
   @Put(':userId/role')
   @ApiOperation({ summary: 'Set user role' })
-  @ApiResponse({ status: 200, description: 'User role updated successfully' })
   async setUserRole(
     @Param('userId') userId: string,
     @Body() setUserRoleDTO: SetUserRoleDTO,
   ) {
     const { role } = setUserRoleDTO;
     return this.userService.setUserRole(userId, role);
+  }
+
+  /**
+   * Delete a user.
+   * @param userId The ID of the user to delete.
+   * @returns A confirmation message.
+   */
+  @Delete(':userId')
+  @ApiOperation({ summary: 'Delete user' })
+  async deleteUser(@Param('userId') userId: string) {
+    return this.userService.deleteUser(userId);
   }
 }
