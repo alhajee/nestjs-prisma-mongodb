@@ -50,6 +50,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
+  @ApiOperation({ summary: 'Get all documents' })
   @ApiQuery({ name: 'where', required: false, type: 'string' })
   @ApiQuery({ name: 'orderBy', required: false, type: 'string' })
   @ApiOkBaseResponse({ dto: UserBaseEntity, isArray: true })
@@ -66,6 +67,7 @@ export class UserController {
   }
 
   @Get('me')
+  @ApiOperation({ summary: 'Get authenticated user details' })
   @ApiOkBaseResponse({ dto: UserBaseEntity })
   @UseGuards(AccessGuard)
   @Serialize(UserBaseEntity)
@@ -81,6 +83,7 @@ export class UserController {
   }
 
   @Patch('me')
+  @ApiOperation({ summary: 'Patch user' })
   @UseGuards(AccessGuard)
   @Serialize(UserBaseEntity)
   @UseAbility(Actions.update, UserEntity, UserHook)
