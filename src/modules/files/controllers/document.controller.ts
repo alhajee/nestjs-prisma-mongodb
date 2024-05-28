@@ -21,8 +21,9 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { User } from '@prisma/client';
 import { CaslUser, UserProxy } from '@modules/casl';
-import { PaginationDTO } from '../dto/pagination.dto';
 import { DocumentSearchDTO } from '../dto/document-search.dto';
+import { DocumentsPaginationDTO } from '../dto/documents-pagination.dto';
+import { MyDocumentsPaginationDTO } from '../dto/my-documents-pagination.dto';
 
 @ApiTags('Documents')
 @Controller('documents')
@@ -85,8 +86,21 @@ export class DocumentController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get documents with pagination' })
   @ApiResponse({ status: 200, description: 'Documents retrieved successfully' })
-  async getDocuments(@Query() paginationDTO: PaginationDTO) {
+  async getDocuments(@Query() paginationDTO: DocumentsPaginationDTO) {
     return this.documentService.getDocuments(paginationDTO);
+  }
+
+  @Version('1')
+  @Get('mine')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get documents with pagination' })
+  @ApiResponse({ status: 200, description: 'Documents retrieved successfully' })
+  async getMyDocuments(
+    @Query() paginationDTO: MyDocumentsPaginationDTO,
+    @CaslUser() userProxy?: UserProxy<User>,
+  ) {
+    const tokenUser = await userProxy.get();
+    return this.documentService.getMyDocuments(paginationDTO, tokenUser.id);
   }
 
   @Version('1')

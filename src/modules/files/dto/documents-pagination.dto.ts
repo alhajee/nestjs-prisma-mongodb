@@ -11,7 +11,7 @@ import {
 } from 'class-validator';
 import { DocumentFiltersDTO } from './document-filter.dto';
 
-export class PaginationDTO {
+export class DocumentsPaginationDTO {
   @ApiPropertyOptional({ enum: Order, default: Order.ASC })
   @IsEnum(Order)
   @IsOptional()

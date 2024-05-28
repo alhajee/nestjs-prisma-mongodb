@@ -1,10 +1,11 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { File } from '@prisma/client';
 import { PrismaService } from '@providers/prisma';
-import { PaginationDTO } from '../dto/pagination.dto';
 import { DocumentSearchObject } from '@modules/search/objects/document.search.object';
 import { SearchService } from '@modules/search/search.service';
 import { DocumentFiltersDTO } from '../dto/document-filter.dto';
+import { DocumentsPaginationDTO } from '../dto/documents-pagination.dto';
+import { MyDocumentsPaginationDTO } from '../dto/my-documents-pagination.dto';
 
 @Injectable()
 export class DocumentService {
@@ -47,7 +48,7 @@ export class DocumentService {
     return document;
   }
 
-  async getDocuments(paginationDTO: PaginationDTO) {
+  async getDocuments(paginationDTO: DocumentsPaginationDTO) {
     const { page, limit, skip, filters } = paginationDTO;
 
     const where = this.buildWhereClause(filters);
@@ -84,7 +85,10 @@ export class DocumentService {
     };
   }
 
-  async getMyDocuments(paginationDTO: PaginationDTO, userId: string) {
+  async getMyDocuments(
+    paginationDTO: MyDocumentsPaginationDTO,
+    userId: string,
+  ) {
     const { page, limit, skip } = paginationDTO;
     const documents = await this.prisma.file.findMany({
       where: {
