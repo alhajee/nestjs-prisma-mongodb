@@ -50,7 +50,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Get all documents' })
+  @ApiOperation({ summary: 'Get all users' })
   @ApiQuery({ name: 'where', required: false, type: 'string' })
   @ApiQuery({ name: 'orderBy', required: false, type: 'string' })
   @ApiOkBaseResponse({ dto: UserBaseEntity, isArray: true })
