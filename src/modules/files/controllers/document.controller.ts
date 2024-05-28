@@ -76,19 +76,8 @@ export class DocumentController {
   ) {
     const tokenUser = await userProxy.get();
 
-    const metadata = {
-      size: file.size,
-      originalFilename: file.originalname,
-      contentType: file.mimetype,
-    };
-
     console.log(file);
-    await this.uploadService.upload(
-      file.originalname,
-      file.buffer,
-      metadata,
-      tokenUser.id,
-    );
+    await this.uploadService.upload(file, tokenUser.id);
   }
 
   @Version('1')
