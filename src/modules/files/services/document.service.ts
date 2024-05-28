@@ -4,6 +4,7 @@ import { PrismaService } from '@providers/prisma';
 import { PaginationDTO } from '../dto/pagination.dto';
 import { DocumentSearchObject } from '@modules/search/objects/document.search.object';
 import { SearchService } from '@modules/search/search.service';
+import { DocumentFiltersDTO } from '../dto/document-filter.dto';
 
 @Injectable()
 export class DocumentService {
@@ -47,8 +48,50 @@ export class DocumentService {
   }
 
   async getDocuments(paginationDTO: PaginationDTO) {
+    const { page, limit, skip, filters } = paginationDTO;
+
+    const where = this.buildWhereClause(filters);
+
+    const documents = await this.prisma.file.findMany({
+      where,
+      take: limit,
+      skip,
+      include: {
+        uploader: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            avatar: true,
+          },
+        },
+        sharedWith: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            avatar: true,
+          },
+        },
+      },
+    });
+    const totalDocuments = await this.prisma.file.count();
+    return {
+      data: documents,
+      page,
+      limit,
+      totalDocuments,
+    };
+  }
+
+  async getMyDocuments(paginationDTO: PaginationDTO, userId: string) {
     const { page, limit, skip } = paginationDTO;
     const documents = await this.prisma.file.findMany({
+      where: {
+        uploader: {
+          id: userId,
+        },
+      },
       take: limit,
       skip,
       include: {
@@ -112,5 +155,80 @@ export class DocumentService {
     // Implement deletion logic (e.g., delete the file from storage)
     await this.prisma.file.delete({ where: { id } });
     return { message: 'Document deleted successfully' };
+  }
+
+  private buildWhereClause(filters: DocumentFiltersDTO) {
+    const where: any = {};
+
+    if (filters) {
+      if (filters.filename) {
+        where.filename = { contains: filters.filename, mode: 'insensitive' };
+      }
+      if (filters.uploaderId) {
+        where.uploaderId = filters.uploaderId;
+      }
+      if (filters.isApproved !== undefined) {
+        where.isApproved = filters.isApproved;
+      }
+      if (filters.isPublic !== undefined) {
+        where.isPublic = filters.isPublic;
+      }
+      if (filters.sizeMin !== undefined) {
+        where.size = { ...where.size, gte: filters.sizeMin };
+      }
+      if (filters.sizeMax !== undefined) {
+        where.size = { ...where.size, lte: filters.sizeMax };
+      }
+      if (filters.fileType) {
+        where.fileType = filters.fileType;
+      }
+      if (filters.uploadedAfter) {
+        where.uploadDate = {
+          ...where.uploadDate,
+          gte: new Date(filters.uploadedAfter),
+        };
+      }
+      if (filters.uploadedBefore) {
+        where.uploadDate = {
+          ...where.uploadDate,
+          lte: new Date(filters.uploadedBefore),
+        };
+      }
+      if (filters.tags) {
+        where.tags = { hasSome: filters.tags };
+      }
+      if (filters.contentType) {
+        where.contentType = filters.contentType;
+      }
+      if (filters.description) {
+        where.description = {
+          contains: filters.description,
+          mode: 'insensitive',
+        };
+      }
+      if (filters.originalFilename) {
+        where.originalFilename = {
+          contains: filters.originalFilename,
+          mode: 'insensitive',
+        };
+      }
+      if (filters.sharedWithIDs) {
+        where.sharedWithIDs = { hasSome: filters.sharedWithIDs };
+      }
+
+      // Apply search filter
+      if (filters.search) {
+        where.OR = [
+          { filename: { contains: filters.search, mode: 'insensitive' } },
+          {
+            uploader: {
+              name: { contains: filters.search, mode: 'insensitive' },
+            },
+          },
+        ];
+      }
+    }
+
+    return where;
   }
 }
