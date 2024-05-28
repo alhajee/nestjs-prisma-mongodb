@@ -8,7 +8,7 @@ import {
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '@providers/prisma';
-import { SaveFileToDBParams } from '../types';
+import { SaveFileToDBParams } from './types';
 
 @Injectable()
 export class UploadService {

@@ -13,17 +13,19 @@ import {
   UploadedFile,
   UseInterceptors,
   Version,
+  Put,
 } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { DocumentService } from '../services/document.service';
-import { UploadService } from '../services/upload.service';
+import { DocumentService } from './document.service';
+import { UploadService } from './upload.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { User } from '@prisma/client';
 import { CaslUser, UserProxy } from '@modules/casl';
-import { DocumentSearchDTO } from '../dto/document-search.dto';
-import { DocumentsPaginationDTO } from '../dto/documents-pagination.dto';
-import { MyDocumentsPaginationDTO } from '../dto/my-documents-pagination.dto';
+import { DocumentSearchDTO } from './dto/document-search.dto';
+import { DocumentsPaginationDTO } from './dto/documents-pagination.dto';
+import { MyDocumentsPaginationDTO } from './dto/my-documents-pagination.dto';
+import { DisapproveDocumentDTO } from './dto/disapprove-document.dto';
 
 @ApiTags('Documents')
 @Controller('documents')
@@ -144,5 +146,26 @@ export class DocumentController {
   @ApiResponse({ status: 404, description: 'Document not found' })
   async deleteDocument(@Param('documentId') id: string) {
     return this.documentService.deleteDocument(id);
+  }
+
+  /**
+   * Disapprove a document.
+   * @param documentId The ID of the file to disapprove.
+   * @param disapproveDocumentDTO The disapproval reason.
+   * @returns The updated file.
+   */
+  @Put(':documentId/disapprove')
+  @ApiOperation({ summary: 'Disapprove a document' })
+  @ApiResponse({
+    status: 200,
+    description: 'Document disapproved successfully',
+  })
+  @ApiResponse({ status: 404, description: 'Document not found' })
+  async disapproveDocument(
+    @Param('documentId') fileId: string,
+    @Body() disapproveDocumentDTO: DisapproveDocumentDTO,
+  ) {
+    const { disapprovalReason } = disapproveDocumentDTO;
+    return this.documentService.disapproveDocument(fileId, disapprovalReason);
   }
 }

@@ -3,9 +3,11 @@ import { File } from '@prisma/client';
 import { PrismaService } from '@providers/prisma';
 import { DocumentSearchObject } from '@modules/search/objects/document.search.object';
 import { SearchService } from '@modules/search/search.service';
-import { DocumentFiltersDTO } from '../dto/document-filter.dto';
-import { DocumentsPaginationDTO } from '../dto/documents-pagination.dto';
-import { MyDocumentsPaginationDTO } from '../dto/my-documents-pagination.dto';
+import { DocumentFiltersDTO } from './dto/document-filter.dto';
+import { DocumentsPaginationDTO } from './dto/documents-pagination.dto';
+import { MyDocumentsPaginationDTO } from './dto/my-documents-pagination.dto';
+import { FileRepository } from './file.repository';
+import { DOCUMENT_NOT_FOUND } from '@constants/errors.constants';
 
 @Injectable()
 export class DocumentService {
@@ -13,6 +15,7 @@ export class DocumentService {
     @Inject('SearchServiceInterface')
     private readonly searchService: SearchService,
     private readonly prisma: PrismaService,
+    private readonly fileRepository: FileRepository,
   ) {}
 
   public async search(q: any): Promise<any> {
@@ -159,6 +162,26 @@ export class DocumentService {
     // Implement deletion logic (e.g., delete the file from storage)
     await this.prisma.file.delete({ where: { id } });
     return { message: 'Document deleted successfully' };
+  }
+
+  /**
+   * Disapprove a document by ID.
+   * @param documentId The ID of the file to disapprove.
+   * @param disapprovalReason The reason for disapproval.
+   * @returns The updated file.
+   */
+  async disapproveDocument(
+    documentId: string,
+    disapprovalReason?: string,
+  ): Promise<File> {
+    const file = await this.fileRepository.findById(documentId);
+    if (!file) {
+      throw new NotFoundException(DOCUMENT_NOT_FOUND);
+    }
+    return this.fileRepository.updateFile(documentId, {
+      isApproved: false,
+      disapprovalReason,
+    });
   }
 
   private buildWhereClause(filters: DocumentFiltersDTO) {
