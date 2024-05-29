@@ -26,7 +26,7 @@ import { DocumentService } from './document.service';
 import { UploadService } from './upload.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes } from '@nestjs/swagger';
-import { User } from '@prisma/client';
+import { File, User } from '@prisma/client';
 import { CaslUser, UserProxy } from '@modules/casl';
 import { DocumentSearchDTO } from './dto/document-search.dto';
 import { DocumentsPaginationDTO } from './dto/documents-pagination.dto';
@@ -35,6 +35,7 @@ import { DisapproveDocumentDTO } from './dto/disapprove-document.dto';
 import ApiBaseResponses from '@decorators/api-base-response.decorator';
 import { FileBaseEntity } from './entities/file-base.entity';
 import Serialize from '@decorators/serialize.decorator';
+import { PaginatorTypes } from '@nodeteam/nestjs-prisma-pagination';
 
 @ApiTags('Documents')
 @ApiBearerAuth()
@@ -98,7 +99,9 @@ export class DocumentController {
   @ApiOperation({ summary: 'Get documents with pagination' })
   @ApiResponse({ status: 200, description: 'Documents retrieved successfully' })
   // @Serialize(FileBaseEntity) TODO: Fix serializer
-  async getDocuments(@Query() paginationDTO: DocumentsPaginationDTO) {
+  async getDocuments(
+    @Query() paginationDTO: DocumentsPaginationDTO,
+  ): Promise<PaginatorTypes.PaginatedResult<File>> {
     return this.documentService.getDocuments(paginationDTO);
   }
 

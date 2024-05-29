@@ -1,5 +1,5 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { File } from '@prisma/client';
+import { File, Prisma } from '@prisma/client';
 import { PrismaService } from '@providers/prisma';
 import { DocumentSearchObject } from '@modules/search/objects/document.search.object';
 import { SearchService } from '@modules/search/search.service';
@@ -8,6 +8,7 @@ import { DocumentsPaginationDTO } from './dto/documents-pagination.dto';
 import { MyDocumentsPaginationDTO } from './dto/my-documents-pagination.dto';
 import { FileRepository } from './file.repository';
 import { DOCUMENT_NOT_FOUND } from '@constants/errors.constants';
+import { PaginatorTypes } from '@nodeteam/nestjs-prisma-pagination';
 
 @Injectable()
 export class DocumentService {
@@ -51,41 +52,46 @@ export class DocumentService {
     return document;
   }
 
-  async getDocuments(paginationDTO: DocumentsPaginationDTO) {
-    const { page, limit, skip, filters } = paginationDTO;
+  async getDocuments(
+    paginationDTO: DocumentsPaginationDTO,
+  ): Promise<PaginatorTypes.PaginatedResult<File>> {
+    const { page, limit, filters, order } = paginationDTO;
 
     const where = this.buildWhereClause(filters);
-
-    const documents = await this.prisma.file.findMany({
-      where,
-      take: limit,
-      skip,
-      include: {
-        uploader: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            avatar: true,
-          },
-        },
-        sharedWith: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            avatar: true,
-          },
+    const include = {
+      uploader: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          avatar: true,
         },
       },
-    });
-    const totalDocuments = await this.prisma.file.count();
-    return {
-      data: documents,
-      page,
-      limit,
-      totalDocuments,
+      sharedWith: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          avatar: true,
+        },
+      },
     };
+
+    const paginationOptions: PaginatorTypes.PaginateOptions = {
+      page,
+      perPage: limit,
+    };
+
+    const orderBy: Prisma.FileOrderByWithRelationInput = {
+      uploadDate: order as unknown as Prisma.SortOrder,
+    };
+
+    return this.fileRepository.findAll(
+      where,
+      include,
+      orderBy,
+      paginationOptions,
+    );
   }
 
   async getMyDocuments(
