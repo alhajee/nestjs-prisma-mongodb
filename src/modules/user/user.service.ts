@@ -43,14 +43,14 @@ export class UserService {
   /**
    * @desc Find all users with pagination
    * @param where
-   * @param orderBy
+   * @param sortBy
    */
   findAll(
     paginationDTO: PaginationDTO,
     where: Prisma.UserWhereInput,
-    orderBy: Prisma.UserOrderByWithRelationInput,
+    sortBy: Prisma.UserOrderByWithRelationInput,
   ): Promise<PaginatorTypes.PaginatedResult<User>> {
-    return this.userRepository.findAll(where, orderBy);
+    return this.userRepository.findAll(where, sortBy);
   }
 
   /**

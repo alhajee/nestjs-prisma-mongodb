@@ -52,7 +52,7 @@ export class UserController {
   @Get()
   @ApiOperation({ summary: 'Get all users' })
   @ApiQuery({ name: 'where', required: false, type: 'string' })
-  @ApiQuery({ name: 'orderBy', required: false, type: 'string' })
+  @ApiQuery({ name: 'sortBy', required: false, type: 'string' })
   @ApiOkBaseResponse({ dto: UserBaseEntity, isArray: true })
   @UseGuards(AccessGuard)
   @Serialize(UserBaseEntity)
@@ -60,10 +60,10 @@ export class UserController {
   async findAll(
     @Query() paginationDTO: PaginationDTO,
     @Query('where', WherePipe) where?: Prisma.UserWhereInput,
-    @Query('orderBy', OrderByPipe)
-    orderBy?: Prisma.UserOrderByWithRelationInput,
+    @Query('sortBy', OrderByPipe)
+    sortBy?: Prisma.UserOrderByWithRelationInput,
   ): Promise<PaginatorTypes.PaginatedResult<User>> {
-    return this.userService.findAll(paginationDTO, where, orderBy);
+    return this.userService.findAll(paginationDTO, where, sortBy);
   }
 
   @Get('me')
