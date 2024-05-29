@@ -11,7 +11,19 @@ import {
 } from 'class-validator';
 import { DocumentFiltersDTO } from './document-filter.dto';
 
+export enum FileSortableColumns {
+  UPLOAD_DATE = 'uploadDate',
+  FILENAME = 'filename',
+  SIZE = 'size',
+  FILE_TYPE = 'fileType',
+}
+
 export class DocumentsPaginationDTO {
+  @ApiPropertyOptional({ enum: FileSortableColumns })
+  @IsOptional()
+  @IsEnum(FileSortableColumns)
+  sortBy?: FileSortableColumns = FileSortableColumns.UPLOAD_DATE;
+
   @ApiPropertyOptional({ enum: Order, default: Order.ASC })
   @IsEnum(Order)
   @IsOptional()

@@ -55,7 +55,7 @@ export class DocumentService {
   async getDocuments(
     paginationDTO: DocumentsPaginationDTO,
   ): Promise<PaginatorTypes.PaginatedResult<File>> {
-    const { page, limit, filters, order } = paginationDTO;
+    const { page, limit, filters, sortBy, order } = paginationDTO;
 
     const where = this.buildWhereClause(filters);
     const include = {
@@ -82,14 +82,14 @@ export class DocumentService {
       perPage: limit,
     };
 
-    const orderBy: Prisma.FileOrderByWithRelationInput = {
-      uploadDate: order as unknown as Prisma.SortOrder,
+    const sortByColumn: Prisma.FileOrderByWithRelationInput = {
+      [sortBy]: order,
     };
 
     return this.fileRepository.findAll(
       where,
       include,
-      orderBy,
+      sortByColumn,
       paginationOptions,
     );
   }

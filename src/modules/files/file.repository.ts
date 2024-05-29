@@ -37,7 +37,8 @@ export class FileRepository {
     orderBy?: Prisma.FileOrderByWithRelationInput,
     paginationOptions?: PaginatorTypes.PaginateOptions,
   ): Promise<PaginatorTypes.PaginatedResult<File>> {
-    return this.paginate(this.prisma.file, {
+    const paginate = paginator(paginationOptions);
+    return paginate(this.prisma.file, {
       where,
       orderBy,
       include,
