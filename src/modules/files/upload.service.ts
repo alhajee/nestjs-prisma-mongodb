@@ -9,6 +9,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '@providers/prisma';
 import { SaveFileToDBParams } from './types';
+import * as path from 'path';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class UploadService {
@@ -29,13 +31,19 @@ export class UploadService {
         : 'https://scidar-drs-uploads.s3.amazonaws.com';
   }
 
-  async upload(file: Express.Multer.File, uploaderId: string) {
+  async upload(file: Express.Multer.File, tags: string[], uploaderId: string) {
     try {
+      // create custom name for the file
+      const uniqueSuffix = `${uuidv4()}-${Date.now()}`;
+      console.log(file.originalname);
+      const extension = path.extname(file.originalname);
+      const customFileName = `${uniqueSuffix}${extension}`;
+
       const parallelUploads3 = new Upload({
         client: this.s3Client,
         params: {
           Bucket: 'scidar-drs-uploads',
-          Key: file.filename,
+          Key: customFileName,
           Body: file.buffer,
           ACL: 'public-read',
           ContentType: file.mimetype,
@@ -57,15 +65,16 @@ export class UploadService {
       await parallelUploads3.done();
 
       // Generate the URL for accessing the uploaded file
-      const fileUrl = `${this.bucketUrl}/${file.filename}`;
+      const fileUrl = `${this.bucketUrl}/${customFileName}`;
 
       // Save file details to the database
       const savedFile = await this.saveFileToDatabase({
-        fileName: file.filename,
+        fileName: customFileName,
         originalFilename: file.originalname,
         fileUrl,
         contentType: file.mimetype,
         size: file.size,
+        tags,
         uploaderId,
       });
 
@@ -82,6 +91,7 @@ export class UploadService {
     fileUrl,
     contentType,
     size,
+    tags,
     uploaderId,
   }: SaveFileToDBParams) {
     // Save file details to the database using Prisma
@@ -97,6 +107,7 @@ export class UploadService {
         },
         contentType,
         size,
+        tags,
       },
     });
 

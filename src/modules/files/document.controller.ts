@@ -14,6 +14,7 @@ import {
   UseInterceptors,
   Version,
   Put,
+  ParseArrayPipe,
 } from '@nestjs/common';
 import {
   ApiExtraModels,
@@ -68,6 +69,7 @@ export class DocumentController {
       properties: {
         comment: { type: 'string' },
         outletId: { type: 'integer' },
+        tags: { type: 'array', items: { type: 'string' } },
         file: {
           type: 'string',
           format: 'binary',
@@ -86,12 +88,13 @@ export class DocumentController {
       }),
     )
     file: Express.Multer.File,
+    @Body('tags', ParseArrayPipe) tags: string[],
     @CaslUser() userProxy?: UserProxy<User>,
   ) {
     const tokenUser = await userProxy.get();
 
     console.log(file);
-    await this.uploadService.upload(file, tokenUser.id);
+    await this.uploadService.upload(file, tags, tokenUser.id);
   }
 
   @Version('1')
