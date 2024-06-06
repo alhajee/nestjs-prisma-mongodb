@@ -1,5 +1,10 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { File, Prisma } from '@prisma/client';
+import {
+  DocumentApprovalStatus,
+  DocumentVisibility,
+  File,
+  Prisma,
+} from '@prisma/client';
 import { PrismaService } from '@providers/prisma';
 import { DocumentSearchObject } from '@modules/search/objects/document.search.object';
 import { SearchService } from '@modules/search/search.service';
@@ -135,21 +140,65 @@ export class DocumentService {
     };
   }
 
-  async approveDocument(id: string) {
-    const document = await this.getDocumentById(id);
-    // Implement approval logic (e.g., set a flag to indicate approval)
-    const approvedDocument = await this.prisma.file.update({
-      where: { id },
-      data: { isApproved: true },
+  async requestApproval(documentId: string): Promise<File> {
+    const file = await this.fileRepository.findById(documentId);
+    if (!file) {
+      throw new NotFoundException(DOCUMENT_NOT_FOUND);
+    }
+    return this.fileRepository.updateFile(documentId, {
+      approvalStatus: DocumentApprovalStatus.PENDING,
     });
-    return approvedDocument;
   }
 
-  async toggleDocumentVisibility(id: string) {
+  async approveDocument(documentId: string, userId: string): Promise<File> {
+    const file = await this.fileRepository.findById(documentId);
+    if (!file) {
+      throw new NotFoundException(DOCUMENT_NOT_FOUND);
+    }
+    return this.fileRepository.updateFile(documentId, {
+      approvalStatus: DocumentApprovalStatus.DISAPPROVED,
+      approvedBy: {
+        connect: {
+          id: userId,
+        },
+      },
+    });
+  }
+
+  async disapproveDocument(
+    documentId: string,
+    userId: string,
+    disapprovalReason?: string,
+  ): Promise<File> {
+    const file = await this.fileRepository.findById(documentId);
+    if (!file) {
+      throw new NotFoundException(DOCUMENT_NOT_FOUND);
+    }
+    return this.fileRepository.updateFile(documentId, {
+      approvalStatus: DocumentApprovalStatus.DISAPPROVED,
+      disapprovalReason,
+      disapprovedBy: {
+        connect: {
+          id: userId,
+        },
+      },
+    });
+  }
+
+  async setDocumentVisibilityToPublic(id: string) {
     const document = await this.getDocumentById(id);
     const updatedDocument = await this.prisma.file.update({
       where: { id },
-      data: { isPublic: !document.isPublic }, // Toggle visibility
+      data: { visibility: DocumentVisibility.PUBLIC },
+    });
+    return updatedDocument;
+  }
+
+  async setDocumentVisibilityToPrivate(id: string) {
+    const document = await this.getDocumentById(id);
+    const updatedDocument = await this.prisma.file.update({
+      where: { id },
+      data: { visibility: DocumentVisibility.PRIVATE },
     });
     return updatedDocument;
   }
@@ -170,28 +219,8 @@ export class DocumentService {
     return { message: 'Document deleted successfully' };
   }
 
-  /**
-   * Disapprove a document by ID.
-   * @param documentId The ID of the file to disapprove.
-   * @param disapprovalReason The reason for disapproval.
-   * @returns The updated file.
-   */
-  async disapproveDocument(
-    documentId: string,
-    disapprovalReason?: string,
-  ): Promise<File> {
-    const file = await this.fileRepository.findById(documentId);
-    if (!file) {
-      throw new NotFoundException(DOCUMENT_NOT_FOUND);
-    }
-    return this.fileRepository.updateFile(documentId, {
-      isApproved: false,
-      disapprovalReason,
-    });
-  }
-
   private buildWhereClause(filters: DocumentFiltersDTO) {
-    const where: any = {};
+    const where: Prisma.FileWhereInput = {};
 
     if (filters) {
       if (filters.filename) {
@@ -200,30 +229,28 @@ export class DocumentService {
       if (filters.uploaderId) {
         where.uploaderId = filters.uploaderId;
       }
-      if (filters.isApproved !== undefined) {
-        where.isApproved = filters.isApproved;
+      if (filters.visibility !== undefined) {
+        where.visibility = filters.visibility;
       }
-      if (filters.isPublic !== undefined) {
-        where.isPublic = filters.isPublic;
+      if (filters.approvalStatus !== undefined) {
+        where.approvalStatus = filters.approvalStatus;
       }
       if (filters.sizeMin !== undefined) {
-        where.size = { ...where.size, gte: filters.sizeMin };
+        where.size = { gte: filters.sizeMin };
       }
       if (filters.sizeMax !== undefined) {
-        where.size = { ...where.size, lte: filters.sizeMax };
+        where.size = { lte: filters.sizeMax };
       }
       if (filters.fileType) {
         where.fileType = filters.fileType;
       }
       if (filters.uploadedAfter) {
         where.uploadDate = {
-          ...where.uploadDate,
           gte: new Date(filters.uploadedAfter),
         };
       }
       if (filters.uploadedBefore) {
         where.uploadDate = {
-          ...where.uploadDate,
           lte: new Date(filters.uploadedBefore),
         };
       }
@@ -255,7 +282,8 @@ export class DocumentService {
           { filename: { contains: filters.search, mode: 'insensitive' } },
           {
             uploader: {
-              name: { contains: filters.search, mode: 'insensitive' },
+              firstName: { contains: filters.search, mode: 'insensitive' },
+              lastName: { contains: filters.search, mode: 'insensitive' },
             },
           },
         ];
