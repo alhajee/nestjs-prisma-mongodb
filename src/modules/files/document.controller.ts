@@ -12,7 +12,6 @@ import {
   Post,
   UploadedFile,
   UseInterceptors,
-  Version,
   Put,
   ParseArrayPipe,
 } from '@nestjs/common';
@@ -49,7 +48,6 @@ export class DocumentController {
     private readonly uploadService: UploadService,
   ) {}
 
-  @Version('1')
   @ApiQuery({ type: DocumentSearchDTO })
   @ApiOperation({ summary: 'Search within documents' })
   @ApiResponse({ status: 200, description: 'Search successful' })
@@ -58,7 +56,6 @@ export class DocumentController {
     return this.documentService.search(query.q);
   }
 
-  @Version('1')
   @Post('upload')
   @ApiOperation({ summary: 'Upload a document' })
   @ApiResponse({ status: 201, description: 'Document uploaded successfully' })
@@ -97,7 +94,6 @@ export class DocumentController {
     await this.uploadService.upload(file, tags, tokenUser.id);
   }
 
-  @Version('1')
   @Get()
   @ApiOperation({ summary: 'Get documents with pagination' })
   @ApiResponse({ status: 200, description: 'Documents retrieved successfully' })
@@ -108,7 +104,6 @@ export class DocumentController {
     return this.documentService.getDocuments(paginationDTO);
   }
 
-  @Version('1')
   @Get('mine')
   @ApiOperation({ summary: 'Get your documents with pagination' })
   @ApiResponse({ status: 200, description: 'Documents retrieved successfully' })
@@ -120,51 +115,41 @@ export class DocumentController {
     return this.documentService.getMyDocuments(paginationDTO, tokenUser.id);
   }
 
-  @Version('1')
   @Get(':documentId')
   @ApiOperation({ summary: 'Get a document by ID' })
   @ApiResponse({ status: 200, description: 'Document retrieved successfully' })
   @ApiResponse({ status: 404, description: 'Document not found' })
-  async getDocumentById(@Param('documentId') id: string) {
-    return this.documentService.getDocumentById(id);
+  async getDocumentById(@Param('documentId') documentId: string) {
+    return this.documentService.getDocumentById(documentId);
   }
 
-  @Version('1')
+  @Post(':documentId/request-approval')
+  @ApiOperation({ summary: 'Request approval for a document' })
+  @ApiResponse({
+    status: 200,
+    description: 'Approval request sent successfully',
+  })
+  @ApiResponse({ status: 404, description: 'Document not found' })
+  async requestApproval(
+    @Param('documentId') documentId: string,
+    @CaslUser() userProxy?: UserProxy<User>,
+  ) {
+    const tokenUser = await userProxy.get();
+    return this.documentService.requestApproval(documentId);
+  }
+
   @Patch(':documentId/approve')
   @ApiOperation({ summary: 'Approve a document' })
   @ApiResponse({ status: 200, description: 'Document approved successfully' })
   @ApiResponse({ status: 404, description: 'Document not found' })
-  async approveDocument(@Param('documentId') id: string) {
-    return this.documentService.approveDocument(id);
-  }
-
-  @Version('1')
-  @Patch(':documentId/rename')
-  @ApiOperation({ summary: 'Rename a document' })
-  @ApiResponse({ status: 200, description: 'Document renamed successfully' })
-  @ApiResponse({ status: 404, description: 'Document not found' })
-  async renameDocument(
-    @Param('documentId') id: string,
-    @Body() newName: string,
+  async approveDocument(
+    @Param('documentId') documentId: string,
+    @CaslUser() userProxy?: UserProxy<User>,
   ) {
-    return this.documentService.renameDocument(id, newName);
+    const tokenUser = await userProxy.get();
+    return this.documentService.approveDocument(documentId, tokenUser.id);
   }
 
-  @Version('1')
-  @Delete(':documentId')
-  @ApiOperation({ summary: 'Delete a document' })
-  @ApiResponse({ status: 200, description: 'Document deleted successfully' })
-  @ApiResponse({ status: 404, description: 'Document not found' })
-  async deleteDocument(@Param('documentId') id: string) {
-    return this.documentService.deleteDocument(id);
-  }
-
-  /**
-   * Disapprove a document.
-   * @param documentId The ID of the file to disapprove.
-   * @param disapproveDocumentDTO The disapproval reason.
-   * @returns The updated file.
-   */
   @Put(':documentId/disapprove')
   @ApiOperation({ summary: 'Disapprove a document' })
   @ApiResponse({
@@ -173,10 +158,59 @@ export class DocumentController {
   })
   @ApiResponse({ status: 404, description: 'Document not found' })
   async disapproveDocument(
-    @Param('documentId') fileId: string,
+    @Param('documentId') documentId: string,
     @Body() disapproveDocumentDTO: DisapproveDocumentDTO,
+    @CaslUser() userProxy?: UserProxy<User>,
   ) {
+    const tokenUser = await userProxy.get();
     const { disapprovalReason } = disapproveDocumentDTO;
-    return this.documentService.disapproveDocument(fileId, disapprovalReason);
+    return this.documentService.disapproveDocument(
+      documentId,
+      tokenUser.id,
+      disapprovalReason,
+    );
+  }
+
+  @Patch(':documentId/rename')
+  @ApiOperation({ summary: 'Rename a document' })
+  @ApiResponse({ status: 200, description: 'Document renamed successfully' })
+  @ApiResponse({ status: 404, description: 'Document not found' })
+  async renameDocument(
+    @Param('documentId') documentId: string,
+    @Body() newName: string,
+  ) {
+    return this.documentService.renameDocument(documentId, newName);
+  }
+
+  @Patch(':documentId/public')
+  @ApiOperation({ summary: 'Set Document visibility to public' })
+  @ApiResponse({
+    status: 200,
+    description: 'Document visibility changed successfully',
+  })
+  @ApiResponse({ status: 404, description: 'Document not found' })
+  async setDocumentVisibilityToPublic(@Param('documentId') documentId: string) {
+    return this.documentService.setDocumentVisibilityToPublic(documentId);
+  }
+
+  @Patch(':documentId/private')
+  @ApiOperation({ summary: 'Set Document visibility to private' })
+  @ApiResponse({
+    status: 200,
+    description: 'Document visibility changed successfully',
+  })
+  @ApiResponse({ status: 404, description: 'Document not found' })
+  async setDocumentVisibilityToPrivate(
+    @Param('documentId') documentId: string,
+  ) {
+    return this.documentService.setDocumentVisibilityToPrivate(documentId);
+  }
+
+  @Delete(':documentId')
+  @ApiOperation({ summary: 'Delete a document' })
+  @ApiResponse({ status: 200, description: 'Document deleted successfully' })
+  @ApiResponse({ status: 404, description: 'Document not found' })
+  async deleteDocument(@Param('documentId') documentId: string) {
+    return this.documentService.deleteDocument(documentId);
   }
 }
