@@ -1,13 +1,14 @@
 import {
   IsOptional,
   IsString,
-  IsBoolean,
   IsInt,
   IsArray,
   IsDateString,
   ArrayNotEmpty,
+  IsEnum,
 } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
+import { DocumentApprovalStatus, DocumentVisibility } from '@prisma/client';
 
 export class DocumentFiltersDTO {
   @IsOptional()
@@ -26,21 +27,21 @@ export class DocumentFiltersDTO {
   })
   uploaderId?: string;
 
-  @IsOptional()
-  @IsBoolean()
-  @ApiPropertyOptional({
-    description: 'Filter files by approval status',
-    required: false,
-  })
-  isApproved?: boolean;
-
-  @IsOptional()
-  @IsBoolean()
   @ApiPropertyOptional({
     description: 'Filter files by public visibility',
-    required: false,
+    enum: DocumentVisibility,
   })
-  isPublic?: boolean;
+  @IsOptional()
+  @IsEnum(DocumentVisibility)
+  visibility?: DocumentVisibility = DocumentVisibility.PRIVATE;
+
+  @ApiPropertyOptional({
+    description: 'Filter files by approval status',
+    enum: DocumentApprovalStatus,
+  })
+  @IsOptional()
+  @IsEnum(DocumentApprovalStatus)
+  approvalStatus?: DocumentApprovalStatus = DocumentApprovalStatus.APPROVED;
 
   @IsOptional()
   @IsInt()
