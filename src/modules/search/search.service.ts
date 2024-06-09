@@ -40,19 +40,7 @@ export class SearchService
   }
 
   public async searchIndex(searchData: any): Promise<any> {
-    return await this.search({
-      ...searchData,
-      body: {
-        query: {
-          match: {
-            my_field: {
-              query: searchData.query,
-              analyzer: 'case_insensitive_analyzer',
-            },
-          },
-        },
-      },
-    })
+    return await this.search(searchData)
       .then((res) => {
         this.logger.log(res);
         return res.hits.hits;
