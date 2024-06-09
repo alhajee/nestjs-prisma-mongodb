@@ -30,7 +30,22 @@ export class IndexService {
             },
             mappings: {
               properties: {
-                my_field: {
+                originalFilename: {
+                  type: 'text',
+                  analyzer: 'case_insensitive_analyzer',
+                },
+                tags: {
+                  type: 'keyword', // exact match
+                },
+                description: {
+                  type: 'text',
+                  analyzer: 'case_insensitive_analyzer',
+                },
+                fileType: {
+                  type: 'text',
+                  analyzer: 'case_insensitive_analyzer',
+                },
+                contentType: {
                   type: 'text',
                   analyzer: 'case_insensitive_analyzer',
                 },
