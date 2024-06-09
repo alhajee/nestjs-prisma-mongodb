@@ -141,11 +141,12 @@ services:
     container_name: drs-api
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     env_file:
       - .env
     volumes:
       - /var/www/uploads:/var/www/uploads
+      - ./src:/app/src
     depends_on:
       - redis-starter
     ports:
