@@ -36,11 +36,13 @@ import ApiBaseResponses from '@decorators/api-base-response.decorator';
 import { FileBaseEntity } from './entities/file-base.entity';
 import Serialize from '@decorators/serialize.decorator';
 import { PaginatorTypes } from '@nodeteam/nestjs-prisma-pagination';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @ApiTags('Documents')
 @ApiBearerAuth()
 @ApiExtraModels(FileBaseEntity)
 @ApiBaseResponses()
+@SkipThrottle()
 @Controller('documents')
 export class DocumentController {
   constructor(
@@ -48,11 +50,10 @@ export class DocumentController {
     private readonly uploadService: UploadService,
   ) {}
 
-  @ApiQuery({ type: DocumentSearchDTO })
   @ApiOperation({ summary: 'Search within documents' })
   @ApiResponse({ status: 200, description: 'Search successful' })
   @Get('/search')
-  public async search(@Query() query: any): Promise<any> {
+  public async search(@Query() query: DocumentSearchDTO): Promise<any> {
     return this.documentService.search(query.q);
   }
 
@@ -64,9 +65,11 @@ export class DocumentController {
     schema: {
       type: 'object',
       properties: {
-        comment: { type: 'string' },
-        outletId: { type: 'integer' },
-        tags: { type: 'array', items: { type: 'string' } },
+        tags: {
+          type: 'array',
+          items: { type: 'string' },
+          default: [],
+        },
         file: {
           type: 'string',
           format: 'binary',
@@ -74,6 +77,7 @@ export class DocumentController {
       },
     },
   })
+  @SkipThrottle({ default: false })
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(
     @UploadedFile(
@@ -91,6 +95,7 @@ export class DocumentController {
     const tokenUser = await userProxy.get();
 
     console.log(file);
+    console.log(tags);
     await this.uploadService.upload(file, tags, tokenUser.id);
   }
 
