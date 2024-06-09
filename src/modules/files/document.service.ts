@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import {
   DocumentApprovalStatus,
   DocumentVisibility,
@@ -17,15 +17,20 @@ import { PaginatorTypes } from '@nodeteam/nestjs-prisma-pagination';
 
 @Injectable()
 export class DocumentService {
+  logger: Logger;
   constructor(
     @Inject('SearchServiceInterface')
     private readonly searchService: SearchService,
     private readonly prisma: PrismaService,
     private readonly fileRepository: FileRepository,
-  ) {}
+  ) {
+    this.logger = new Logger(DocumentService.name);
+  }
 
   public async search(q: any): Promise<any> {
+    this.logger.log(q);
     const data = DocumentSearchObject.searchObject(q);
+    this.logger.log(data);
     return await this.searchService.searchIndex(data);
   }
 
