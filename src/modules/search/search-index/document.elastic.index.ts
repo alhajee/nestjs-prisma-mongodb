@@ -18,13 +18,17 @@ export class DocumentElasticIndex {
     return await this.searchService.insertIndex(data);
   }
 
+  public async deleteFileDocument(file: File): Promise<any> {
+    return await this.deleteIndex(file.id);
+  }
+
   public async updateFileDocument(file: File): Promise<any> {
     const data = this.fileDocument(file);
-    await this.deleteFileDocument(file.id);
+    await this.deleteIndex(file.id);
     return await this.searchService.insertIndex(data);
   }
 
-  private async deleteFileDocument(docId: string): Promise<any> {
+  private async deleteIndex(docId: string): Promise<any> {
     const data = {
       index: documentIndex._index,
       id: docId,

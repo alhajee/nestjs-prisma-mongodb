@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import { File, Prisma } from '@prisma/client';
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { DocumentElasticIndex } from '@modules/search/search-index/document.elastic.index';
 
@@ -14,7 +14,7 @@ export class PrismaMiddleware {
 
   createFileMiddleware(): Prisma.Middleware {
     return async (params: Prisma.MiddlewareParams, next): Promise<any> => {
-      const result = await next(params);
+      const result: File = await next(params);
 
       if (params.model === 'File' && params.action === 'create') {
         try {
@@ -30,11 +30,27 @@ export class PrismaMiddleware {
 
   updateFileMiddleware(): Prisma.Middleware {
     return async (params: Prisma.MiddlewareParams, next): Promise<any> => {
-      const result = await next(params);
+      const result: File = await next(params);
 
       if (params.model === 'File' && params.action === 'update') {
         try {
           await this.documentESIndex.updateFileDocument(result);
+        } catch (error) {
+          this.logger.error(error);
+        }
+      }
+
+      return result;
+    };
+  }
+
+  deleteFileMiddleware(): Prisma.Middleware {
+    return async (params: Prisma.MiddlewareParams, next): Promise<any> => {
+      const result: File = await next(params);
+
+      if (params.model === 'File' && params.action === 'delete') {
+        try {
+          await this.documentESIndex.deleteFileDocument(result);
         } catch (error) {
           this.logger.error(error);
         }
