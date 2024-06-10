@@ -161,7 +161,7 @@ export class DocumentService {
       throw new NotFoundException(DOCUMENT_NOT_FOUND);
     }
     return this.fileRepository.updateFile(documentId, {
-      approvalStatus: DocumentApprovalStatus.DISAPPROVED,
+      approvalStatus: DocumentApprovalStatus.APPROVED,
       approvedBy: {
         connect: {
           id: userId,
