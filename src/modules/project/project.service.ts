@@ -115,29 +115,31 @@ export class ProjectService {
   private buildWhereClause(filters: ProjectFiltersDTO) {
     const where: Prisma.ProjectWhereInput = {};
 
-    if (filters.name) {
-      where.name = { contains: filters.name, mode: 'insensitive' };
-    }
-    if (filters.createdBy) {
-      where.createdByUserId = filters.createdBy;
-    }
-    if (filters.createdAfter) {
-      where.createdAt = { gte: new Date(filters.createdAfter) };
-    }
-    if (filters.createdBefore) {
-      where.createdAt = { lte: new Date(filters.createdBefore) };
-    }
-    if (filters.tags) {
-      where.tags = { hasSome: filters.tags };
-    }
-    if (filters.description) {
-      where.description = {
-        contains: filters.description,
-        mode: 'insensitive',
-      };
-    }
-    if (filters.managedByIDs) {
-      where.projectManagersIDs = { hasSome: filters.managedByIDs };
+    if (filters) {
+      if (filters.name) {
+        where.name = { contains: filters.name, mode: 'insensitive' };
+      }
+      if (filters.createdBy) {
+        where.createdByUserId = filters.createdBy;
+      }
+      if (filters.createdAfter) {
+        where.createdAt = { gte: new Date(filters.createdAfter) };
+      }
+      if (filters.createdBefore) {
+        where.createdAt = { lte: new Date(filters.createdBefore) };
+      }
+      if (filters.tags) {
+        where.tags = { hasSome: filters.tags };
+      }
+      if (filters.description) {
+        where.description = {
+          contains: filters.description,
+          mode: 'insensitive',
+        };
+      }
+      if (filters.managedByIDs) {
+        where.projectManagersIDs = { hasSome: filters.managedByIDs };
+      }
     }
 
     return where;
