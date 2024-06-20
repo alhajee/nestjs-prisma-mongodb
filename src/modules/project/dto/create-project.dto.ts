@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ProjectCategory } from '@prisma/client';
 import {
   IsArray,
   IsEnum,
@@ -6,7 +7,6 @@ import {
   IsString,
   ArrayNotEmpty,
 } from 'class-validator';
-import { ProjectCategory } from '../types';
 
 export class CreateProjectDTO {
   @ApiProperty({

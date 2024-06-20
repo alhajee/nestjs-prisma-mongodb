@@ -23,6 +23,8 @@ import {
 } from '@nestjs/swagger';
 import ProjectBaseEntity from './entities/project-base-entity';
 import { PaginatorTypes } from '@nodeteam/nestjs-prisma-pagination';
+import { CreateProjectDTO } from './dto/create-project.dto';
+import { UpdateProjectDTO } from './dto/update-project.dto';
 
 @ApiTags('Projects')
 @ApiBearerAuth()
@@ -63,7 +65,7 @@ export class ProjectController {
     description: 'Project created',
     type: ProjectBaseEntity,
   })
-  async create(@Body() data: any): Promise<Project> {
+  async create(@Body() data: CreateProjectDTO): Promise<Project> {
     return this.projectService.create(data);
   }
 
@@ -77,7 +79,7 @@ export class ProjectController {
   @ApiResponse({ status: 404, description: 'Project not found' })
   async update(
     @Param('projectId') id: string,
-    @Body() data: any,
+    @Body() data: UpdateProjectDTO,
   ): Promise<Project> {
     return this.projectService.update(id, data);
   }
