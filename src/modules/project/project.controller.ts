@@ -25,10 +25,12 @@ import ProjectBaseEntity from './entities/project-base-entity';
 import { PaginatorTypes } from '@nodeteam/nestjs-prisma-pagination';
 import { CreateProjectDTO } from './dto/create-project.dto';
 import { UpdateProjectDTO } from './dto/update-project.dto';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @ApiTags('Projects')
 @ApiBearerAuth()
 @ApiExtraModels(ProjectBaseEntity)
+@SkipThrottle()
 @Controller('projects')
 export class ProjectController {
   constructor(private readonly projectService: ProjectService) {}
