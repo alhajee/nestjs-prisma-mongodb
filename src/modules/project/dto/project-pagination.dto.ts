@@ -9,7 +9,7 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { ProjectFiltersDTO } from '../../project/dto/project-filters.dto';
+import { ProjectFiltersDTO } from './project-filters.dto';
 import { ProjectSortableColumns } from '../types';
 
 export class ProjectsPaginationDTO {
@@ -46,16 +46,6 @@ export class ProjectsPaginationDTO {
   @Max(50)
   @IsOptional()
   readonly limit?: number = 10;
-
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => ProjectFiltersDTO)
-  @ApiProperty({
-    description: 'Filters to apply to the project query',
-    type: ProjectFiltersDTO,
-    required: false,
-  })
-  filters?: ProjectFiltersDTO;
 
   get skip(): number {
     return (this.page - 1) * this.limit;

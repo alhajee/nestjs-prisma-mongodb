@@ -7,7 +7,7 @@ import {
   IsEnum,
 } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { ProjectCategory } from '../types';
+import { ProjectCategory } from '@prisma/client';
 
 export class ProjectFiltersDTO {
   @ApiPropertyOptional({ enum: ProjectCategory })
