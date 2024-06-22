@@ -2,9 +2,9 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { ProjectRepository } from './project.repository';
 import { Project, Prisma } from '@prisma/client';
 import { PaginatorTypes } from '@nodeteam/nestjs-prisma-pagination';
-import { ProjectsPaginationDTO } from './dto/project-pagination.dto';
 import { PROJECT_NOT_FOUND } from '@constants/errors.constants';
 import { ProjectFiltersDTO } from './dto/project-filters.dto';
+import { ListProjectsDTO } from './dto/projects.dto';
 
 @Injectable()
 export class ProjectService {
@@ -23,11 +23,11 @@ export class ProjectService {
   }
 
   async findAll(
-    paginationDTO: ProjectsPaginationDTO,
+    projectsDTO: ListProjectsDTO,
   ): Promise<PaginatorTypes.PaginatedResult<Project>> {
-    const { page, limit, filters, sortBy, order } = paginationDTO;
+    const { page, limit, sortBy, order } = projectsDTO;
 
-    const where: Prisma.ProjectWhereInput = this.buildWhereClause(filters);
+    const where: Prisma.ProjectWhereInput = this.buildWhereClause(projectsDTO);
     const include: Prisma.ProjectInclude = {
       projectManagers: {
         select: {

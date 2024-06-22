@@ -10,7 +10,6 @@ import {
 } from '@nestjs/common';
 import { ProjectService } from './project.service';
 import { Project } from '@prisma/client';
-import { ProjectsPaginationDTO } from './dto/project-pagination.dto';
 import {
   ApiTags,
   ApiOperation,
@@ -26,6 +25,7 @@ import { PaginatorTypes } from '@nodeteam/nestjs-prisma-pagination';
 import { CreateProjectDTO } from './dto/create-project.dto';
 import { UpdateProjectDTO } from './dto/update-project.dto';
 import { SkipThrottle } from '@nestjs/throttler';
+import { ListProjectsDTO } from './dto/projects.dto';
 
 @ApiTags('Projects')
 @ApiBearerAuth()
@@ -55,7 +55,7 @@ export class ProjectController {
     type: [ProjectBaseEntity],
   })
   async findAll(
-    @Query() paginationDTO: ProjectsPaginationDTO,
+    @Query() paginationDTO: ListProjectsDTO,
   ): Promise<PaginatorTypes.PaginatedResult<Project>> {
     return this.projectService.findAll(paginationDTO);
   }
