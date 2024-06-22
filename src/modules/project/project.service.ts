@@ -25,9 +25,9 @@ export class ProjectService {
   async findAll(
     projectsDTO: ListProjectsDTO,
   ): Promise<PaginatorTypes.PaginatedResult<Project>> {
-    const { page, limit, sortBy, order } = projectsDTO;
+    const { page, limit, sortBy, order, ...filters } = projectsDTO;
 
-    const where: Prisma.ProjectWhereInput = this.buildWhereClause(projectsDTO);
+    const where: Prisma.ProjectWhereInput = this.buildWhereClause(filters);
     const include: Prisma.ProjectInclude = {
       projectManagers: {
         select: {
@@ -116,6 +116,9 @@ export class ProjectService {
     const where: Prisma.ProjectWhereInput = {};
 
     if (filters) {
+      if (filters.category) {
+        where.category = filters.category;
+      }
       if (filters.name) {
         where.name = { contains: filters.name, mode: 'insensitive' };
       }
@@ -139,6 +142,13 @@ export class ProjectService {
       }
       if (filters.managedByIDs) {
         where.projectManagersIDs = { hasSome: filters.managedByIDs };
+      }
+
+      if (filters.search) {
+        where.OR = [
+          { name: { contains: filters.search, mode: 'insensitive' } },
+          { description: { contains: filters.search, mode: 'insensitive' } },
+        ];
       }
     }
 
