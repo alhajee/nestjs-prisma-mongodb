@@ -29,7 +29,7 @@ export class ProjectService {
 
     const where: Prisma.ProjectWhereInput = this.buildWhereClause(filters);
     const include: Prisma.ProjectInclude = {
-      projectManagers: {
+      managers: {
         select: {
           id: true,
           firstName: true,
@@ -37,7 +37,7 @@ export class ProjectService {
           avatar: true,
         },
       },
-      projectMembers: {
+      members: {
         select: {
           id: true,
           firstName: true,
@@ -79,7 +79,7 @@ export class ProjectService {
   async addMember(projectId: string, userId: string): Promise<Project> {
     const project = await this.findById(projectId);
     return this.projectRepository.updateProject(projectId, {
-      projectMembers: {
+      members: {
         connect: { id: userId },
       },
     });
@@ -88,7 +88,7 @@ export class ProjectService {
   async removeMember(projectId: string, userId: string): Promise<Project> {
     const project = await this.findById(projectId);
     return this.projectRepository.updateProject(projectId, {
-      projectMembers: {
+      members: {
         disconnect: { id: userId },
       },
     });
@@ -97,7 +97,7 @@ export class ProjectService {
   async addManager(projectId: string, userId: string): Promise<Project> {
     const project = await this.findById(projectId);
     return this.projectRepository.updateProject(projectId, {
-      projectManagers: {
+      managers: {
         connect: { id: userId },
       },
     });
@@ -106,7 +106,7 @@ export class ProjectService {
   async removeManager(projectId: string, userId: string): Promise<Project> {
     const project = await this.findById(projectId);
     return this.projectRepository.updateProject(projectId, {
-      projectManagers: {
+      managers: {
         disconnect: { id: userId },
       },
     });
@@ -141,7 +141,7 @@ export class ProjectService {
         };
       }
       if (filters.managedByIDs) {
-        where.projectManagersIDs = { hasSome: filters.managedByIDs };
+        where.managersIDs = { hasSome: filters.managedByIDs };
       }
 
       if (filters.search) {
