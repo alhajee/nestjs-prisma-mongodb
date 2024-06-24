@@ -3,6 +3,7 @@ import { PrismaService } from '@providers/prisma';
 import { File, Prisma } from '@prisma/client';
 import { paginator } from '@nodeteam/nestjs-prisma-pagination';
 import { PaginatorTypes } from '@nodeteam/nestjs-prisma-pagination';
+import { PrismaRepositoryClient } from '@providers/prisma/types';
 
 @Injectable()
 export class FileRepository {
@@ -15,18 +16,27 @@ export class FileRepository {
     });
   }
 
-  async findById(id: string): Promise<File> {
-    return this.prisma.file.findUnique({
+  async findById(
+    id: string,
+    transactionClient: PrismaRepositoryClient = this.prisma,
+  ): Promise<File> {
+    return transactionClient.file.findUnique({
       where: { id },
     });
   }
 
-  async findOne(params: Prisma.FileFindFirstArgs): Promise<File | null> {
-    return this.prisma.file.findFirst(params);
+  async findOne(
+    params: Prisma.FileFindFirstArgs,
+    transactionClient: PrismaRepositoryClient = this.prisma,
+  ): Promise<File | null> {
+    return transactionClient.file.findFirst(params);
   }
 
-  async create(data: Prisma.FileCreateInput): Promise<File> {
-    return this.prisma.file.create({
+  async create(
+    data: Prisma.FileCreateInput,
+    transactionClient: PrismaRepositoryClient = this.prisma,
+  ): Promise<File> {
+    return transactionClient.file.create({
       data,
     });
   }
@@ -36,24 +46,32 @@ export class FileRepository {
     include: Prisma.FileInclude,
     orderBy?: Prisma.FileOrderByWithRelationInput,
     paginationOptions?: PaginatorTypes.PaginateOptions,
+    transactionClient: PrismaRepositoryClient = this.prisma,
   ): Promise<PaginatorTypes.PaginatedResult<File>> {
     const paginate = paginator(paginationOptions);
-    return paginate(this.prisma.file, {
+    return paginate(transactionClient.file, {
       where,
       orderBy,
       include,
     });
   }
 
-  async updateFile(id: string, data: Prisma.FileUpdateInput): Promise<File> {
-    return this.prisma.file.update({
+  async updateFile(
+    id: string,
+    data: Prisma.FileUpdateInput,
+    transactionClient: PrismaRepositoryClient = this.prisma,
+  ): Promise<File> {
+    return transactionClient.file.update({
       where: { id },
       data,
     });
   }
 
-  async deleteFile(id: string): Promise<File> {
-    return this.prisma.file.delete({
+  async deleteFile(
+    id: string,
+    transactionClient: PrismaRepositoryClient = this.prisma,
+  ): Promise<File> {
+    return transactionClient.file.delete({
       where: { id },
     });
   }
