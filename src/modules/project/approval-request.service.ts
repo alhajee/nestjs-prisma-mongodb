@@ -3,6 +3,7 @@ import {
   NotFoundException,
   ConflictException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { ApprovalRequestRepository } from './approval-request.repository';
 import { PrismaService } from '@providers/prisma';
@@ -15,6 +16,8 @@ import {
   USER_NOT_IN_PROJECT,
   USER_NOT_MANAGER,
   REQUEST_NOT_FOUND,
+  APPROVAL_REQUEST_NOT_PENDING,
+  UNAUTHORIZED_RESOURCE,
 } from '@constants/errors.constants';
 import { ListRequestsDTO } from './dto/list-requests.dto';
 import { ProjectRepository } from '@modules/project/project.repository';
@@ -263,6 +266,20 @@ export class ApprovalRequestService {
       sortByColumn,
       paginationOptions,
     );
+  }
+
+  async cancelRequest(requestId: string, userId: string): Promise<void> {
+    const request = await this.findById(requestId);
+
+    if (request.submittedById !== userId) {
+      throw new ForbiddenException(UNAUTHORIZED_RESOURCE);
+    }
+
+    if (request.status !== ApprovalStatus.PENDING) {
+      throw new BadRequestException(APPROVAL_REQUEST_NOT_PENDING);
+    }
+
+    await this.approvalRequestRepository.delete(requestId);
   }
 
   private buildWhereClause(filters: RequestsFiltersDTO) {

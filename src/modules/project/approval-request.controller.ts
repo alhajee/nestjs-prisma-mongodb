@@ -6,6 +6,7 @@ import {
   Param,
   Body,
   Query,
+  Delete,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -23,6 +24,11 @@ import { CaslUser, UserProxy } from '@modules/casl';
 import { ParseMongoIdPipe } from '@pipes/parse-mongoid.pipe';
 import ApprovalRequestBaseEntity from './entities/approval-request-base.entity';
 import { SkipThrottle } from '@nestjs/throttler';
+import {
+  APPROVAL_REQUEST_NOT_PENDING,
+  REQUEST_NOT_FOUND,
+  UNAUTHORIZED_RESOURCE,
+} from '@constants/errors.constants';
 
 @ApiTags('Approval Requests')
 @ApiBearerAuth()
@@ -149,5 +155,32 @@ export class ApprovalRequestController {
       tokenUser.id,
       disapprovalReason,
     );
+  }
+
+  @Delete(':requestId')
+  @ApiOperation({ summary: 'Cancel an approval request' })
+  @ApiResponse({
+    status: 200,
+    description: 'Approval request cancelled',
+    type: ApprovalRequestBaseEntity,
+  })
+  @ApiResponse({
+    status: 404,
+    description: REQUEST_NOT_FOUND,
+  })
+  @ApiResponse({
+    status: 400,
+    description: APPROVAL_REQUEST_NOT_PENDING,
+  })
+  @ApiResponse({
+    status: 403,
+    description: UNAUTHORIZED_RESOURCE,
+  })
+  async cancelRequest(
+    @Param('requestId') id: string,
+    @CaslUser() userProxy?: UserProxy<User>,
+  ): Promise<void> {
+    const tokenUser = await userProxy.get();
+    await this.approvalRequestService.cancelRequest(id, tokenUser.id);
   }
 }
