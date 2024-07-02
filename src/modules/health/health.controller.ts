@@ -6,9 +6,11 @@ import {
   DiskHealthIndicator,
   HealthCheckResult,
 } from '@nestjs/terminus';
-import { SkipAuth } from '@modules/auth/skip-auth.guard';
+import { SkipAuth } from '@modules/auth/guard/skip-auth.guard';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @Controller('health')
+@SkipThrottle()
 export default class HealthController {
   constructor(
     private health: HealthCheckService,

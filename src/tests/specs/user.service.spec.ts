@@ -4,23 +4,29 @@ import { permissions } from '@modules/user/user.permissions';
 import { UserController } from '@modules/user/user.controller';
 import { UserService } from '@modules/user/user.service';
 import { UserRepository } from '@modules/user/user.repository';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import appConfig from '@config/app.config';
 import swaggerConfig from '@config/swagger.config';
 import jwtConfig from '@config/jwt.config';
 import s3Config from '@config/s3.config';
 import sqsConfig from '@config/sqs.config';
-import { User } from '@prisma/client';
+import { PrismaClient, User } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 import { PrismaService } from '@providers/prisma';
 import { PaginatorTypes } from '@nodeteam/nestjs-prisma-pagination';
 import PaginatedResult = PaginatorTypes.PaginatedResult;
-import { INestApplication } from '@nestjs/common';
 import {
   createUsers,
   getPaginatedData,
 } from '@tests/common/user.mock.functions';
 import mockUserRepository from '@tests/mocks/user.repository.mock';
+import { PrismaMiddleware } from '@providers/prisma/prisma.middleware';
+import { DocumentElasticIndex } from '@modules/search/search-index/document.elastic.index';
+import { SearchService } from '@modules/search/search.service';
+import { NotFoundException } from '@nestjs/common';
+import { USER_NOT_FOUND } from '@constants/errors.constants';
+import { MailService } from '@modules/mail/services/mail.service';
+import { MailModule } from '@modules/mail/mail.module';
 
 describe('UserService', () => {
   let userService: UserService;
@@ -31,14 +37,24 @@ describe('UserService', () => {
       imports: [
         CaslModule.forFeature({ permissions }),
         ConfigModule.forRoot({
+          isGlobal: true,
           load: [appConfig, swaggerConfig, jwtConfig, s3Config, sqsConfig],
         }),
+        MailModule,
       ],
       controllers: [UserController],
       providers: [
+        ConfigService,
         UserService,
         { provide: UserRepository, useValue: mockUserRepository },
         PrismaService,
+        PrismaMiddleware,
+        DocumentElasticIndex,
+        {
+          provide: 'SearchServiceInterface',
+          useClass: SearchService,
+        },
+        PrismaClient,
       ],
     }).compile();
 
@@ -75,9 +91,12 @@ describe('UserService', () => {
         mockUserRepository.findById.mockReturnValueOnce(null);
       });
 
-      it('should return null', async () => {
+      it('should throw error', async () => {
         const id = faker.string.alphanumeric();
-        expect(await userService.findById(id)).toBe(null);
+
+        await expect(async () => {
+          await userService.findById(id);
+        }).rejects.toThrow(new NotFoundException(USER_NOT_FOUND));
       });
     });
   });
@@ -125,7 +144,17 @@ describe('UserService', () => {
       });
 
       it('should returns all users', async () => {
-        expect(await userService.findAll({}, {})).toStrictEqual(paginatedData);
+        expect(
+          await userService.findAll(
+            {
+              page: 1,
+              limit: 10,
+              skip: 0,
+            },
+            {},
+            {},
+          ),
+        ).toStrictEqual(paginatedData);
       });
     });
   });

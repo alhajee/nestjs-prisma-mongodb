@@ -11,7 +11,7 @@ export const permissions: Permissions<Roles, Subjects, Actions> = {
     can(Actions.read, UserEntity);
   },
 
-  customer({ user, can }) {
+  GUEST({ user, can }) {
     can(Actions.update, UserEntity, { id: user.id });
   },
 };

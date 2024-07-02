@@ -1,4 +1,4 @@
-import { TokenService } from '@modules/auth/token.service';
+import { AuthTokenService } from '@modules/auth/auth-token.service';
 import { AuthService } from '@modules/auth/auth.service';
 import { PrismaClient, User } from '@prisma/client';
 import { INestApplication } from '@nestjs/common';
@@ -11,20 +11,20 @@ import { faker } from '@faker-js/faker';
 class TestService {
   private _authService!: AuthService;
 
-  private _tokenService!: TokenService;
+  private _tokenService!: AuthTokenService;
 
   private _connection!: PrismaClient;
 
   constructor(app: INestApplication, connection: PrismaClient) {
     this._authService = app.get<AuthService>(AuthService);
 
-    this._tokenService = app.get<TokenService>(TokenService);
+    this._tokenService = app.get<AuthTokenService>(AuthTokenService);
 
     this._connection = connection;
   }
 
   async createGlobalAdmin(): Promise<AdminUserInterface> {
-    const role: Roles.admin[] = [Roles.admin];
+    const role: Roles.SYSTEM_ADMIN[] = [Roles.SYSTEM_ADMIN];
 
     const signUpData: SignUpDto = getSignUpData();
     const userPassword: string = signUpData.password;
@@ -36,16 +36,19 @@ class TestService {
         id: newAdmin.id,
       },
       data: {
-        roles: ['admin', 'customer'],
+        roles: [Roles.SYSTEM_ADMIN, Roles.GUEST],
       },
     });
 
     const { id, phone, email, password } = newAdmin;
 
-    const { accessToken, refreshToken } = await this._authService.signIn({
-      email,
-      password: userPassword,
-    });
+    const { accessToken, refreshToken } = await this._authService.signIn(
+      {
+        email,
+        password: userPassword,
+      },
+      '172.0.0.1',
+    );
 
     return {
       id,
@@ -74,6 +77,7 @@ class TestService {
       firstName: faker.person.firstName(),
       lastName: faker.person.lastName(),
       password: faker.internet.password({ length: 12 }),
+      roles: [Roles.GUEST],
     };
   }
 

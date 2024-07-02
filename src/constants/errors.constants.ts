@@ -9,7 +9,7 @@ export const AUDIT_LOG_NOT_FOUND = '404007: Audit log not found';
 export const DOMAIN_NOT_FOUND = '404008: Domain not found';
 export const MEMBERSHIP_NOT_FOUND = '404009: Membership not found';
 export const BILLING_NOT_FOUND = '404010: Billing not found';
-export const CUSTOMER_NOT_FOUND = '404011: Customer not found';
+export const GUEST_NOT_FOUND = '404011: Guest not found';
 export const INVOICE_NOT_FOUND = '404012: Invoice not found';
 export const SUBSCRIPTION_NOT_FOUND = '404013: Subscription not found';
 export const SOURCE_NOT_FOUND = '404014: Source not found';
@@ -31,6 +31,9 @@ export const PHOTO_NOT_FOUND = '404029: Photo not found';
 export const REGION_NOT_FOUND = '404030: Region not found';
 export const PERMISSIONS_NOT_FOUND = '404031: Permissions not found';
 export const INVITE_IS_INVALID = '404032: Invite is invalid';
+export const DOCUMENT_NOT_FOUND = '404033: Document not found';
+export const PROJECT_NOT_FOUND = '404033: Project not found';
+export const REQUEST_NOT_FOUND = '404034: Document approval request not found';
 
 export const UNAUTHORIZED_RESOURCE = '401000: Unauthorized resource';
 export const INVALID_CREDENTIALS = '401001: Invalid credentials';
@@ -41,6 +44,9 @@ export const UNVERIFIED_LOCATION = '401005: Location is not verified';
 export const MFA_BACKUP_CODE_USED = '401007: Backup code is already used';
 export const INVALID_FCM_TOKEN = '401008: Invalid FCM token';
 export const TOKEN_IS_EXPIRED = '401009: Token is expired';
+export const USER_NOT_IN_PROJECT = '401010: User is not part of the project';
+export const USER_NOT_MANAGER =
+  '401011: User is not a part of project managers';
 
 export const FORBIDDEN_RESOURCE = '403000: Forbidden resource';
 
@@ -82,6 +88,8 @@ export const ORGANIZATION_TYPE_TOURNAMENT =
 export const ORGANIZATION_NOT_VERIFIED = '400030: Organization is not verified';
 export const USER_NOT_VERIFIED = '400031: User is not verified';
 export const GAME_STATUS_INCOMPATIBLE = '400032: Game status is incompatible';
+export const APPROVAL_REQUEST_NOT_PENDING =
+  '400033: Approval request no longer pending';
 
 export const CONFLICT = '409000: Conflict';
 export const USER_CONFLICT =
@@ -119,6 +127,8 @@ export const CAN_NOT_FOLLOW = '409024: Can not follow';
 export const CAN_NOT_UNFOLLOW = '409025: Can not unfollow';
 export const USER_ALREADY_FOLLOWING = '409026: User already following';
 export const INVITE_NOT_AVAILABLE = '409026: Invite not available';
+export const DOCUMENT_ALREADY_SUBMITTED =
+  '409027: Document is already submitted for approval for this project';
 
 export const RATE_LIMIT_EXCEEDED = '429000: Rate limit exceeded';
 
