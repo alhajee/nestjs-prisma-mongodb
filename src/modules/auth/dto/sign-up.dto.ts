@@ -1,5 +1,16 @@
-import { IsString, IsEmail, IsNotEmpty, Length, Matches } from 'class-validator';
+import {
+  IsString,
+  IsEmail,
+  IsNotEmpty,
+  Length,
+  Matches,
+  IsEnum,
+  ArrayUnique,
+  IsPhoneNumber,
+  IsOptional,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Roles } from '@modules/app/app.roles';
 
 export class SignUpDto {
   @ApiProperty({ type: String })
@@ -17,14 +28,43 @@ export class SignUpDto {
   @IsNotEmpty()
   readonly lastName!: string;
 
-  @ApiProperty({ type: String, default: 'string!12345' })
+  @ApiPropertyOptional({
+    type: String,
+    example: '+2348030300003',
+    description: 'Phone number',
+  })
+  @IsPhoneNumber()
+  @IsOptional()
+  readonly phone: string;
+
+  @ApiPropertyOptional({ type: String, default: 'String!12345' })
   @IsString()
-  @Length(6, 20)
+  @Length(6, 99)
   @Matches(/[\d\W]/, {
     message:
       'password must contain at least one digit and/or special character',
   })
   @Matches(/[a-zA-Z]/, { message: 'password must contain at least one letter' })
   @Matches(/^\S+$/, { message: 'password must not contain spaces' })
+  @IsOptional()
   readonly password!: string;
+
+  @ApiProperty({
+    description: 'The roles of the user. Defaults to ["GUEST"].',
+    enum: Roles,
+    default: [Roles.GUEST],
+  })
+  @IsEnum(Roles, { each: true })
+  @ArrayUnique()
+  readonly roles!: Roles[];
+
+  @ApiPropertyOptional({ type: String, example: 'Audit' })
+  @IsString()
+  @IsOptional()
+  readonly department: string;
+
+  @ApiPropertyOptional({ type: String, example: 'Principal' })
+  @IsString()
+  @IsOptional()
+  readonly designation: string;
 }

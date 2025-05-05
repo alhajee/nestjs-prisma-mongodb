@@ -22,6 +22,7 @@
     "noFallthroughCasesInSwitch": false,
     "paths": {
       "@filters/*": ["./src/filters/*"],
+      "@dto/*": ["./src/dto/*"],
       "@guards/*": ["./src/guards/*"],
       "@pipes/*": ["./src/pipes/*"],
       "@interceptors/*": ["./src/interceptors/*"],

@@ -2,6 +2,9 @@ import { User } from '@prisma/client';
 import { Roles } from '@modules/app/app.roles';
 
 export default class UserEntity implements User {
+  lastLogin: Date;
+  department: string;
+  designation: string;
   readonly id!: string;
 
   readonly phone!: string | null;
@@ -14,6 +17,8 @@ export default class UserEntity implements User {
 
   readonly password!: string | null;
 
+  readonly avatar!: string | null;
+
   readonly roles!: Roles[];
 
   readonly createdAt!: Date;
@@ -21,4 +26,11 @@ export default class UserEntity implements User {
   readonly updatedAt!: Date;
 
   readonly isVerified!: boolean;
+
+  readonly isActive!: boolean;
+
+  readonly fileSharedIDs!: string[];
+
+  readonly projectMemberProjectIDs: string[];
+  readonly projectManagerProjectIDs: string[];
 }
